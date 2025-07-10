@@ -1,0 +1,203 @@
+type: project
+name: Raptor-Class Engine Development
+project_manager: "Sarah Chen"
+sponsor: "Engineering Department"
+priority: critical
+
+# Budget and financial
+total_budget: 3500000
+budget_categories:
+  personnel: 1400000
+  materials: 800000
+  testing: 600000
+  equipment: 400000
+  facilities: 200000
+  contingency: 100000
+
+budget_spent: 850000
+budget_committed: 420000
+
+# Timeline
+start_date: 2024-01-01
+planned_start_date: 2024-01-01
+actual_start_date: 2024-01-15
+planned_end_date: 2025-12-31
+estimated_completion_date: 2026-02-28
+
+# Status and progress
+status: active
+completion_percentage: 35
+risk_level: high
+
+# Milestones
+milestones:
+  - name: "Conceptual Design Review"
+    planned_date: 2024-03-01
+    actual_completion_date: 2024-03-15
+    deliverable: "Conceptual design document and requirements"
+    budget: 150000
+    status: completed
+    notes: "Completed slightly behind schedule but within budget"
+
+  - name: "Preliminary Design Review"
+    planned_date: 2024-06-01
+    actual_completion_date: 2024-06-10
+    deliverable: "Preliminary design specifications"
+    budget: 250000
+    status: completed
+    notes: "Excellent progress, design approved by all stakeholders"
+
+  - name: "Critical Design Review"
+    planned_date: 2024-09-01
+    actual_completion_date: 2024-09-20
+    deliverable: "Final design specifications and manufacturing plans"
+    budget: 200000
+    status: completed
+    notes: "Some design modifications required, completed within budget"
+
+  - name: "Component Fabrication"
+    planned_date: 2024-12-01
+    deliverable: "All major components fabricated and inspected"
+    budget: 600000
+    status: in_progress
+    notes: "60% complete, on track for December completion"
+
+  - name: "Engine Assembly"
+    planned_date: 2025-02-01
+    deliverable: "Complete engine assembly ready for testing"
+    budget: 300000
+    status: planned
+
+  - name: "Cold Flow Testing"
+    planned_date: 2025-04-01
+    deliverable: "Cold flow test results and analysis"
+    budget: 150000
+    status: planned
+
+  - name: "Hot Fire Testing"
+    planned_date: 2025-08-01
+    deliverable: "Hot fire test results and performance validation"
+    budget: 400000
+    status: planned
+
+  - name: "Qualification Testing"
+    planned_date: 2025-11-01
+    deliverable: "Complete qualification test suite"
+    budget: 300000
+    status: planned
+
+  - name: "Flight Certification"
+    planned_date: 2025-12-31
+    deliverable: "FAA flight certification approval"
+    budget: 150000
+    status: planned
+
+# Team and resources
+team_members:
+  - "Sarah Chen"          # Lead Engineer
+  - "Michael Rodriguez"   # Propulsion Engineer
+  - "Jennifer Kim"        # Test Engineer
+  - "David Park"          # Manufacturing Engineer
+  - "Lisa Wang"           # Systems Engineer
+  - "Robert Johnson"      # Quality Engineer
+  - "Maria Garcia"        # Project Coordinator
+  - "Kevin Li"            # Design Engineer
+
+required_skills:
+  - "Rocket propulsion"
+  - "Turbomachinery design"
+  - "Combustion dynamics"
+  - "Materials science"
+  - "Test and validation"
+  - "Manufacturing processes"
+  - "Systems engineering"
+
+# Dependencies
+dependencies:
+  - "Test facility availability"
+  - "Material procurement lead times"
+  - "Regulatory approval timelines"
+  - "Skilled technician availability"
+
+# Deliverables
+deliverables:
+  - name: "Engine Design Package"
+    type: "Technical Documentation"
+    due_date: 2024-09-30
+    status: completed
+  - name: "Manufacturing Procedures"
+    type: "Process Documentation"
+    due_date: 2024-11-30
+    status: in_progress
+  - name: "Test Procedures"
+    type: "Test Documentation"
+    due_date: 2025-01-31
+    status: planned
+  - name: "Qualification Report"
+    type: "Certification Documentation"
+    due_date: 2025-12-31
+    status: planned
+
+# Success criteria
+success_criteria:
+  - "Thrust: 225 kN ± 5%"
+  - "Specific impulse: 330 seconds minimum"
+  - "Chamber pressure: 100 bar ± 10%"
+  - "Throttle range: 40-100%"
+  - "Restart capability: 10 cycles minimum"
+  - "Operational life: 100 hours minimum"
+  - "Cost target: <$200,000 per engine"
+
+# Risk factors
+risk_factors:
+  - name: "Technical complexity"
+    probability: high
+    impact: high
+    mitigation: "Extensive testing and validation"
+  - name: "Supply chain delays"
+    probability: medium
+    impact: medium
+    mitigation: "Multiple suppliers and inventory buffer"
+  - name: "Regulatory changes"
+    probability: low
+    impact: high
+    mitigation: "Early engagement with regulators"
+  - name: "Key personnel departure"
+    probability: medium
+    impact: high
+    mitigation: "Knowledge transfer and backup resources"
+
+# Performance metrics
+performance_metrics:
+  budget_variance: -2.5  # % under budget
+  schedule_variance: 5.0  # % behind schedule
+  quality_score: 92
+  team_satisfaction: 85
+  stakeholder_satisfaction: 90
+
+# Strategic importance
+strategic_importance: critical
+market_potential: "Launch services market"
+competitive_advantage: "Advanced throttling and restart capability"
+intellectual_property: "3 patent applications filed"
+
+# External relationships
+customers:
+  - "SpaceX (potential)"
+  - "Blue Origin (interested)"
+  - "NASA (SBIR funding)"
+
+suppliers:
+  - "Aerojet Rocketdyne (components)"
+  - "Pratt & Whitney (turbopumps)"
+  - "Specialty Materials Inc (superalloys)"
+
+tags:
+  - propulsion
+  - r_and_d
+  - critical_path
+  - high_budget
+  - customer_facing
+  - ip_generating
+
+notes: "Flagship project for the company. Success critical for Series A funding and customer acquisition. High technical risk but significant market opportunity."

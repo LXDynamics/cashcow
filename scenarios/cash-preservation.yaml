@@ -1,0 +1,105 @@
+name: cash_preservation
+description: "Emergency cash preservation scenario for extended runway"
+
+# Global assumptions
+assumptions:
+  revenue_growth_rate: 0.02  # Minimal growth
+  overhead_multiplier: 1.1   # Reduced overhead through cuts
+  hiring_delay_months: 12    # Freeze hiring for 1 year
+  grant_success_rate: 0.5    # Focus on sure bets
+
+# Entity filters
+entity_filters:
+  # Exclude non-essential expenses
+  exclude_tags: ["non_essential", "nice_to_have", "bonus"]
+  exclude_patterns: [".*bonus.*", ".*stipend.*", ".*conference.*", ".*training.*"]
+  
+  # Only include critical employees
+  include_patterns: [".*critical.*", ".*essential.*", ".*lead.*"]
+
+# Entity-specific overrides
+entity_overrides:
+  # Eliminate all bonuses
+  - name_pattern: ".*"
+    field: bonus_performance_max
+    value: 0.0
+  
+  - name_pattern: ".*"
+    field: bonus_milestones_max
+    value: 0.0
+  
+  # Cut allowances and stipends
+  - name_pattern: ".*"
+    field: home_office_stipend
+    value: 0.0
+  
+  - name_pattern: ".*"
+    field: professional_development_annual
+    value: 0.0
+  
+  - name_pattern: ".*"
+    field: conference_budget_annual
+    value: 0.0
+  
+  # Reduce facility costs
+  - entity_type: facility
+    multiplier: 0.8
+    field: monthly_cost
+  
+  # Cut software subscriptions
+  - entity_type: software
+    multiplier: 0.7
+    field: monthly_cost
+  
+  # Defer equipment purchases
+  - entity_type: equipment
+    changes:
+      purchase_date: "2025-12-01"  # Defer by 1 year
+  
+  # Focus only on essential projects
+  - entity_type: project
+    name_pattern: "(?!.*essential).*"
+    field: status
+    value: "on_hold"
+  
+  # Negotiate payment deferrals
+  - entity: "NASA Technical Support Contract"
+    multiplier: 0.8
+    field: monthly_amount
+
+# Cost reduction measures
+cost_reductions:
+  - category: "Personnel"
+    action: "Hiring freeze"
+    savings_monthly: 50000
+    
+  - category: "Facilities"
+    action: "Renegotiate lease terms"
+    savings_monthly: 8000
+    
+  - category: "Software"
+    action: "Consolidate licenses"
+    savings_monthly: 2000
+    
+  - category: "Operations"
+    action: "Eliminate discretionary spending"
+    savings_monthly: 10000
+
+# Revenue preservation
+revenue_preservation:
+  - action: "Focus on existing customer relationships"
+    impact: "Maintain service contract revenue"
+    
+  - action: "Accelerate grant applications"
+    impact: "Increase non-dilutive funding"
+    
+  - action: "Offer payment terms to close sales faster"
+    impact: "Accelerate cash collection"
+
+tags:
+  - cash_preservation
+  - emergency
+  - survival_mode
+  - cost_cutting
+
+notes: "Emergency scenario designed to maximize runway through aggressive cost cutting while preserving core capabilities and revenue."

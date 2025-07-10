@@ -1,0 +1,83 @@
+name: conservative
+description: "Conservative scenario with market challenges and execution delays"
+
+# Global assumptions
+assumptions:
+  revenue_growth_rate: 0.05  # 5% annual growth
+  overhead_multiplier: 1.4   # Higher costs due to inefficiencies
+  hiring_delay_months: 3     # Delay hiring to preserve cash
+  grant_success_rate: 0.4    # Lower success rate
+
+# Entity filters
+entity_filters:
+  # Exclude speculative or risky items
+  exclude_tags: ["speculative", "optimistic"]
+  exclude_patterns: [".*bonus.*", ".*conference.*"]
+
+# Entity-specific overrides
+entity_overrides:
+  # Reduce sales revenue
+  - entity_type: sale
+    multiplier: 0.7
+    field: amount
+  
+  # Delay SpaceX order
+  - entity: "SpaceX Engine Cluster Order"
+    changes:
+      delivery_date: "2025-08-15"  # 6 month delay
+      amount: 2400000  # Reduced scope
+  
+  # Grant funding reduced
+  - entity_type: grant
+    multiplier: 0.8
+    field: amount
+  
+  # Delay Series A funding
+  - entity: "Series A Funding Round"
+    changes:
+      start_date: "2024-09-01"  # 3 month delay
+      amount: 3500000  # Reduced round size
+  
+  # Eliminate non-essential spending
+  - name_pattern: ".*bonus.*"
+    field: bonus_performance_max
+    value: 0.0
+  
+  - name_pattern: ".*stipend.*"
+    multiplier: 0.5
+    field: value
+  
+  # Reduce facility costs
+  - entity_type: facility
+    multiplier: 0.9
+    field: monthly_cost
+  
+  # Key employee departure risk
+  - entity: "Sarah Chen"
+    field: end_date
+    value: "2025-06-01"  # Risk of departure
+
+# Risk factors
+risk_factors:
+  - description: "Market adoption slower than expected"
+    impact: "Reduced sales velocity and longer sales cycles"
+    probability: 0.3
+  
+  - description: "Technical development delays"
+    impact: "Delayed product delivery and increased costs"
+    probability: 0.4
+  
+  - description: "Competition intensifies"
+    impact: "Pressure on pricing and market share"
+    probability: 0.2
+  
+  - description: "Key personnel departure"
+    impact: "Loss of expertise and project delays"
+    probability: 0.2
+
+tags:
+  - conservative
+  - risk_management
+  - cash_preservation
+
+notes: "Worst-case planning scenario accounting for market challenges, execution risks, and competitive pressures."

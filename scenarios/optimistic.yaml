@@ -1,0 +1,60 @@
+name: optimistic
+description: "Optimistic growth scenario with accelerated revenue and efficient operations"
+
+# Global assumptions
+assumptions:
+  revenue_growth_rate: 0.25  # 25% annual growth
+  overhead_multiplier: 1.2   # More efficient operations
+  hiring_delay_months: -1    # Hire 1 month early to capture opportunities
+  grant_success_rate: 0.8    # Higher success rate
+
+# Entity filters
+entity_filters:
+  # Include all entities
+  include_types: []
+  exclude_types: []
+
+# Entity-specific overrides
+entity_overrides:
+  # Boost sales revenue
+  - entity_type: sale
+    multiplier: 1.5
+    field: amount
+  
+  # Increase service contract values
+  - entity_type: service
+    multiplier: 1.2
+    field: monthly_amount
+  
+  # SpaceX deal comes in larger
+  - entity: "SpaceX Engine Cluster Order"
+    changes:
+      amount: 4500000  # $4.5M instead of $3M
+      quantity: 6      # 6 engines instead of 4
+  
+  # Additional high-value customer
+  - entity_type: sale
+    name_pattern: ".*additional.*"
+    changes:
+      amount: 2000000
+      delivery_date: "2025-06-01"
+  
+  # Grant funding increased
+  - entity_type: grant
+    multiplier: 1.1
+    field: amount
+
+# Strategic changes
+strategic_changes:
+  - description: "Accelerated market adoption"
+    impact: "Earlier revenue recognition and larger deal sizes"
+  
+  - description: "Operational efficiency gains"
+    impact: "Lower overhead costs and faster execution"
+
+tags:
+  - optimistic
+  - growth
+  - market_success
+
+notes: "Best-case scenario assuming strong market reception, efficient execution, and successful fundraising."

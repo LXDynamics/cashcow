@@ -1,0 +1,68 @@
+type: software
+name: CAD Software Suite
+vendor: Siemens
+software_name: NX
+license_type: subscription
+monthly_cost: 2400
+
+# Licensing details
+license_count: 8
+per_user_cost: 300
+concurrent_users: 8
+
+# Contract terms
+contract_start_date: 2024-01-01
+contract_end_date: 2024-12-31
+auto_renewal: true
+
+# Support and maintenance
+support_included: true
+maintenance_percentage: 0.20
+
+# Usage details
+primary_users:
+  - "Sarah Chen"
+  - "Michael Rodriguez"
+  - "Jennifer Kim"
+  - "David Park"
+  - "Lisa Wang"
+  - "Robert Johnson"
+  - "Maria Garcia"
+  - "Kevin Li"
+
+# Software capabilities
+capabilities:
+  - "3D CAD modeling"
+  - "Finite element analysis"
+  - "Computational fluid dynamics"
+  - "Assembly design"
+  - "Technical drawing"
+  - "Simulation and testing"
+
+# Integration
+integrations:
+  - "ANSYS Fluent"
+  - "MATLAB"
+  - "SolidWorks (legacy)"
+  - "AutoCAD"
+
+# Strategic importance
+business_critical: true
+productivity_impact: high
+alternative_cost: 4000  # Cost of alternative solution
+
+# Renewal planning
+renewal_alert_days: 60
+budget_approved: true
+usage_metrics:
+  monthly_hours: 1200
+  active_users: 8
+  license_utilization: 0.85
+
+tags:
+  - engineering_software
+  - design_tools
+  - business_critical
+  - high_utilization
+
+notes: "Essential for all engineering design work. High utilization rate justifies cost. Consider volume discount for next renewal."

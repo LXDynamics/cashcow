@@ -1,0 +1,78 @@
+cashcow:
+  version: "1.0"
+  database: cashcow.db
+  
+  # Entity type configurations
+  entity_types:
+    employee:
+      required_fields: [salary]
+      calculators: [salary_calc, equity_calc, overhead_calc]
+      default_overhead_multiplier: 1.3
+      
+    grant:
+      required_fields: [amount]
+      calculators: [milestone_calc, disbursement_calc]
+      
+    investment:
+      required_fields: [amount]
+      calculators: [disbursement_calc]
+      
+    sale:
+      required_fields: [amount]
+      calculators: [revenue_calc]
+      
+    service:
+      required_fields: [monthly_amount]
+      calculators: [recurring_calc]
+      
+    facility:
+      required_fields: [monthly_cost]
+      calculators: [recurring_calc, utilities_calc]
+      
+    software:
+      required_fields: [monthly_cost]
+      calculators: [recurring_calc]
+      
+    equipment:
+      required_fields: [cost, purchase_date]
+      calculators: [one_time_calc, depreciation_calc]
+      
+    project:
+      required_fields: [total_budget]
+      calculators: [milestone_calc, burn_calc]
+  
+  # KPI configurations
+  kpis:
+    - name: runway
+      description: "Months until cash reaches zero"
+      category: financial
+    - name: burn_rate
+      description: "Monthly cash consumption"
+      category: financial
+    - name: revenue_growth
+      description: "Month-over-month revenue growth percentage"
+      category: revenue
+    - name: rd_percentage
+      description: "R&D spend as percentage of total expenses"
+      category: operational
+    - name: revenue_per_employee
+      description: "Revenue divided by active employees"
+      category: efficiency
+    - name: cac
+      description: "Customer acquisition cost"
+      category: sales
+  
+  # Reporting configurations
+  reporting:
+    default_forecast_months: 24
+    chart_style: seaborn
+    output_formats: [csv, json, html]
+    
+  # Scenario configurations
+  scenarios:
+    default: baseline
+    sensitivity_variables:
+      - revenue_growth_rate
+      - hiring_rate
+      - overhead_multiplier
+      - grant_success_rate

@@ -1,0 +1,26 @@
+name: baseline
+description: "Conservative baseline scenario with current assumptions"
+
+# Global assumptions
+assumptions:
+  revenue_growth_rate: 0.10  # 10% annual growth
+  overhead_multiplier: 1.3
+  hiring_delay_months: 0
+  grant_success_rate: 0.6
+
+# Entity filters
+entity_filters:
+  # Include all entities by default
+  include_types: []
+  exclude_types: []
+  
+# Entity-specific overrides
+entity_overrides: []
+
+# Scenario metadata
+tags:
+  - baseline
+  - conservative
+  - current_plan
+
+notes: "Base case scenario using current planning assumptions. Used as reference for other scenarios."

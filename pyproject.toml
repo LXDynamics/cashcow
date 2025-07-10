@@ -1,0 +1,57 @@
+[tool.poetry]
+name = "cashcow"
+version = "0.1.0"
+description = "Cash flow modeling system for rocket engine company"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+packages = [{include = "cashcow", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pydantic = "^2.5.0"
+pyyaml = "^6.0.1"
+click = "^8.1.7"
+pandas = "^2.2.0"
+matplotlib = "^3.8.0"
+sqlalchemy = "^2.0.0"
+aiosqlite = "^0.20.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio = "^0.23.0"
+black = "^24.0.0"
+ruff = "^0.1.0"
+mypy = "^1.8.0"
+pre-commit = "^3.6.0"
+psutil = "^7.0.0"
+memory-profiler = "^0.61.0"
+pytest-json-report = "^1.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.ruff]
+line-length = 100
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.poetry.scripts]
+cashcow = "cashcow.cli.main:cli"

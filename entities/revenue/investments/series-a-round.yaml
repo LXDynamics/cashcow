@@ -1,0 +1,81 @@
+type: investment
+name: Series A Funding Round
+investor: Aerospace Ventures LLC
+round_name: Series A
+round_type: series_a
+
+# Investment details
+amount: 5000000
+start_date: 2024-06-01
+pre_money_valuation: 20000000
+post_money_valuation: 25000000
+share_price: 2.50
+shares_issued: 2000000
+
+# Terms
+liquidation_preference: 1.0
+anti_dilution: weighted_average
+board_seats: 1
+
+# Disbursement schedule
+disbursement_schedule:
+  - date: 2024-06-15
+    amount: 3000000
+    milestone: "Closing and initial funding"
+    status: completed
+  - date: 2024-09-15
+    amount: 1000000
+    milestone: "Prototype milestone achievement"
+    status: planned
+  - date: 2024-12-15
+    amount: 1000000
+    milestone: "Customer validation milestone"
+    status: planned
+
+# Investor information
+lead_investor: "Aerospace Ventures LLC"
+participating_investors:
+  - name: "TechStars Ventures"
+    amount: 1000000
+  - name: "Angel Syndicate"
+    amount: 500000
+
+# Use of funds
+use_of_funds:
+  research_and_development: 0.40
+  manufacturing_setup: 0.30
+  team_expansion: 0.20
+  operations: 0.10
+
+# Governance
+investor_rights:
+  - board_observer_rights
+  - information_rights
+  - anti_dilution_protection
+  - drag_along_rights
+  - tag_along_rights
+
+# Performance metrics
+key_milestones:
+  - name: "Engine prototype completion"
+    date: 2024-10-01
+    kpi: "Technical milestone"
+  - name: "First customer contract"
+    date: 2024-12-01
+    kpi: "Revenue milestone"
+  - name: "Manufacturing facility setup"
+    date: 2025-03-01
+    kpi: "Operational milestone"
+
+# Legal and compliance
+legal_counsel: "Wilson Sonsini Goodrich & Rosati"
+closing_date: 2024-06-01
+due_diligence_complete: true
+
+tags:
+  - institutional_funding
+  - series_a
+  - growth_capital
+  - aerospace
+
+notes: "Led by Aerospace Ventures with strong industry connections. Includes milestone-based disbursement to ensure capital efficiency."

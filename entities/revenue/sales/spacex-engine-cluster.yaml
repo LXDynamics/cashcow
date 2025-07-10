@@ -1,0 +1,86 @@
+type: sale
+name: SpaceX Engine Cluster Order
+customer: Space Exploration Technologies Corp
+product: Raptor-Class Engine Cluster
+quantity: 4
+unit_price: 750000
+amount: 3000000
+
+# Sale details
+start_date: 2024-08-01
+delivery_date: 2025-02-15
+payment_terms: net_30
+
+# Payment schedule
+payment_schedule:
+  - date: 2024-08-15
+    amount: 600000
+    milestone: "Contract signing - 20% down payment"
+    status: completed
+  - date: 2024-11-15
+    amount: 900000
+    milestone: "Design review completion - 30%"
+    status: planned
+  - date: 2025-01-15
+    amount: 900000
+    milestone: "Manufacturing completion - 30%"
+    status: planned
+  - date: 2025-03-15
+    amount: 600000
+    milestone: "Delivery and acceptance - 20%"
+    status: planned
+
+# Product specifications
+product_specifications:
+  thrust_per_engine: "225 kN"
+  engine_count: 4
+  total_thrust: "900 kN"
+  fuel_type: "Liquid Methane/Liquid Oxygen"
+  throttle_range: "40-100%"
+  restart_capability: true
+
+# Contract terms
+contract_number: "SPX-2024-REC-001"
+contract_value: 3000000
+warranty_period_months: 12
+performance_guarantees:
+  - metric: "Thrust"
+    target: "225 kN per engine"
+    tolerance: "±2%"
+  - metric: "Specific Impulse"
+    target: "330 seconds"
+    tolerance: "±5 seconds"
+
+# Delivery requirements
+delivery_location: "Hawthorne, CA"
+delivery_requirements:
+  - "Full acceptance testing"
+  - "Documentation package"
+  - "Operator training"
+  - "Spare parts kit"
+
+# Support services
+support_included:
+  - installation_support: true
+  - training_hours: 40
+  - technical_support_months: 12
+  - spare_parts_value: 150000
+
+# Strategic importance
+strategic_value: high
+repeat_customer_potential: true
+reference_customer: true
+
+# Risk factors
+risk_factors:
+  - "Technical performance requirements"
+  - "Delivery timeline constraints"
+  - "Customer acceptance criteria"
+
+tags:
+  - commercial_space
+  - high_value
+  - strategic_customer
+  - propulsion
+
+notes: "Major breakthrough customer win. SpaceX relationship opens door to additional commercial space opportunities. Critical for company credibility."

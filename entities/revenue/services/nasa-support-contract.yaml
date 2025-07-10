@@ -1,0 +1,105 @@
+type: service
+name: NASA Technical Support Contract
+customer: National Aeronautics and Space Administration
+service_type: Engineering Support Services
+monthly_amount: 45000
+
+# Service details
+start_date: 2024-04-01
+end_date: 2026-03-31
+description: "Technical consulting and engineering support for advanced propulsion systems"
+
+# Service structure
+hourly_rate: 150
+hours_per_month: 300
+minimum_commitment_months: 24
+auto_renewal: true
+
+# Contract terms
+contract_number: "80NSSC24C0123"
+contract_type: "Time and Materials"
+ceiling_value: 1080000  # 24 months * $45k
+
+# Service scope
+service_scope:
+  - "Propulsion system design consultation"
+  - "Technical review and analysis"
+  - "Testing support and guidance"
+  - "Documentation and reporting"
+  - "Training and knowledge transfer"
+
+# Team allocation
+team_members:
+  - name: "Dr. Sarah Chen"
+    role: "Lead Engineer"
+    hours_per_month: 120
+    rate: 175
+  - name: "Michael Rodriguez"
+    role: "Senior Engineer"
+    hours_per_month: 100
+    rate: 150
+  - name: "Jennifer Kim"
+    role: "Test Engineer"
+    hours_per_month: 80
+    rate: 125
+
+# Performance metrics
+sla_requirements:
+  response_time_hours: 24
+  availability_percentage: 95
+  deliverable_on_time_rate: 98
+  customer_satisfaction_minimum: 4.5
+
+# Deliverables
+monthly_deliverables:
+  - "Technical progress report"
+  - "Hours summary and billing"
+  - "Issue resolution log"
+
+quarterly_deliverables:
+  - "Comprehensive technical review"
+  - "Recommendations report"
+  - "Knowledge transfer session"
+
+# Financial terms
+billing_frequency: monthly
+payment_terms: net_30
+invoice_requirements:
+  - "Detailed hour breakdown"
+  - "Task descriptions"
+  - "Deliverable status"
+
+# Compliance requirements
+security_clearance_required: false
+export_control_applicable: true
+government_furnished_equipment: true
+
+# Performance incentives
+performance_incentives:
+  - metric: "On-time delivery"
+    threshold: 95
+    bonus_percentage: 2
+  - metric: "Customer satisfaction"
+    threshold: 4.8
+    bonus_percentage: 3
+
+# Strategic value
+strategic_importance: high
+government_relationship: true
+reference_value: high
+follow_on_potential: true
+
+# Risk factors
+risk_factors:
+  - "Government budget constraints"
+  - "Technical complexity"
+  - "Resource allocation challenges"
+
+tags:
+  - government_contract
+  - nasa
+  - consulting
+  - recurring_revenue
+  - technical_services
+
+notes: "Excellent relationship building opportunity with NASA. Provides steady recurring revenue and enhances credibility for future government contracts."

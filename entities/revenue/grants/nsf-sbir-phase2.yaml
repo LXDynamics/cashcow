@@ -1,0 +1,71 @@
+type: grant
+name: NSF SBIR Phase II
+agency: National Science Foundation
+program: Small Business Innovation Research
+grant_number: 2048123
+
+# Grant financials
+amount: 1000000
+start_date: 2024-03-01
+end_date: 2026-02-28
+indirect_cost_rate: 0.15
+
+# Payment schedule
+payment_schedule:
+  - date: 2024-03-15
+    amount: 300000
+    milestone: "Contract execution and work plan approval"
+    status: completed
+  - date: 2024-09-15
+    amount: 350000
+    milestone: "Prototype testing complete"
+    status: in_progress
+  - date: 2025-03-15
+    amount: 350000
+    milestone: "Final report and commercialization plan"
+    status: planned
+
+# Milestones
+milestones:
+  - name: "Technical Design Review"
+    date: 2024-05-01
+    deliverable: "Technical design document"
+    status: completed
+  - name: "Prototype Fabrication"
+    date: 2024-08-01
+    deliverable: "Working prototype"
+    status: in_progress
+  - name: "Performance Testing"
+    date: 2024-11-01
+    deliverable: "Test results report"
+    status: planned
+  - name: "Commercialization Plan"
+    date: 2025-01-01
+    deliverable: "Business plan and market analysis"
+    status: planned
+
+# Reporting requirements
+reporting_requirements: "Quarterly technical and financial reports"
+reporting_frequency: quarterly
+
+# Project details
+project_title: "Advanced Rocket Engine Combustion Chamber Design"
+technical_abstract: "Development of next-generation combustion chamber technology for small satellite launch vehicles"
+
+# Team and resources
+principal_investigator: "Dr. Sarah Chen"
+co_investigators:
+  - "Dr. Michael Rodriguez"
+  - "Dr. Jennifer Kim"
+
+# Compliance
+small_business_certification: true
+export_control_applicable: true
+
+tags:
+  - federal_funding
+  - r_and_d
+  - propulsion
+  - phase_2
+
+notes: "This Phase II grant builds on successful Phase I results. Focus on scaling technology for commercial applications."
