@@ -7,15 +7,11 @@ import asyncio
 from pathlib import Path
 from datetime import date, datetime, timedelta
 from typing import Dict, Any, Optional
-import sys
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from cashcow.engine import CashFlowEngine, KPICalculator, ScenarioManager
-from cashcow.storage import EntityStore, YamlEntityLoader
-from cashcow.models import create_entity
-from cashcow.config import get_config
+from ..engine import CashFlowEngine, KPICalculator, ScenarioManager
+from ..storage import EntityStore, YamlEntityLoader
+from ..models import create_entity
+from ..config import get_config
 
 
 @click.group()
@@ -235,10 +231,14 @@ def validate(fix: bool):
             if fix:
                 click.echo("Auto-fix not yet implemented.")
         else:
-            click.echo(f"\n✓ All {len(list(entities_dir.rglob('*.yaml')))} files validated successfully.")
+            # Count files validated
+            file_count = sum(1 for _ in entities_dir.rglob('*.yaml'))
+            click.echo(f"\n✓ All {file_count} files validated successfully.")
             
     except Exception as e:
+        import traceback
         click.echo(f"❌ Error during validation: {e}")
+        click.echo(f"Traceback: {traceback.format_exc()}")
 
 
 @cli.command()

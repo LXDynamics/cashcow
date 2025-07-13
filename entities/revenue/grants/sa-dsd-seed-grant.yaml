@@ -1,7 +1,14 @@
 type: grant
 name: SA DSD Seed Grant
-start_date: '2025-10-12'
-tags: []
+start_date: '2025-10-01'
+tags: [SA, DSD, Seed, Non-Dilutive]
 amount: 100000.0
-funding_agency: Department of State Development
-program: Research and Innovation Fund
+funding_agency: 'South Australia Department of State Development'
+program: 'Research Innovation Fund'
+milestones:
+  - name: Award
+    amount: 100000
+    date: '2025-10-01'
+payment_schedule:
+    - date: '2025-10-01'    # Award date from milestones
+      amount: 100000        # Full amount on award

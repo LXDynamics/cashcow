@@ -1,8 +1,12 @@
 type: employee
 name: Alexander Wright
-start_date: '2025-07-11'
+start_date: '2025-10-01'
 tags: []
-salary: 90000.0
+salary: 50000.0
 position: CEO
 department: Engineering
-equity_shares: 100
+equity_eligible: true
+equity_shares: 10000
+overhead_multiplier: 1.0
+pay_frequency: monthly
+
