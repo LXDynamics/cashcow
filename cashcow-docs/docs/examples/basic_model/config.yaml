@@ -1,0 +1,109 @@
+# Basic CashCow Configuration
+# This is a simplified configuration for getting started quickly
+
+cashcow:
+  version: "1.0"
+  database: cashcow.db
+  
+  # Minimal entity types for a startup rocket engine company
+  entity_types:
+    # Personnel
+    employee:
+      required_fields: [salary]
+      calculators: [salary_calc, overhead_calc]
+      default_overhead_multiplier: 1.25  # 25% overhead for small company
+      
+    # Revenue sources
+    grant:
+      required_fields: [amount]
+      calculators: [milestone_calc, disbursement_calc]
+      
+    investment:
+      required_fields: [amount]
+      calculators: [disbursement_calc]
+      
+    sale:
+      required_fields: [amount]
+      calculators: [revenue_calc]
+      
+    # Basic expenses
+    facility:
+      required_fields: [monthly_cost]
+      calculators: [recurring_calc]
+      
+    software:
+      required_fields: [monthly_cost]
+      calculators: [recurring_calc]
+      
+    equipment:
+      required_fields: [cost, purchase_date]
+      calculators: [one_time_calc, depreciation_calc]
+  
+  # Essential KPIs for a startup
+  kpis:
+    - name: runway
+      description: "Months until cash reaches zero"
+      category: financial
+      priority: high
+      
+    - name: burn_rate
+      description: "Monthly cash consumption"
+      category: financial
+      priority: high
+      
+    - name: revenue_growth
+      description: "Month-over-month revenue growth percentage"
+      category: revenue
+      priority: medium
+      
+    - name: revenue_per_employee
+      description: "Revenue divided by active employees"
+      category: efficiency
+      priority: medium
+  
+  # Basic reporting configuration
+  reporting:
+    default_forecast_months: 18  # 18-month runway for startups
+    chart_style: seaborn
+    output_formats: [csv, html]  # Skip JSON for simplicity
+    include_charts: true
+    show_confidence_intervals: false  # Simplified for basic model
+    
+  # Simple scenario configuration
+  scenarios:
+    default: baseline
+    available:
+      - baseline
+      - conservative
+    
+    # Key variables to track
+    sensitivity_variables:
+      - revenue_growth_rate
+      - hiring_rate
+      - grant_success_rate
+
+# Default assumptions for basic model
+defaults:
+  # Employee defaults
+  employee:
+    overhead_multiplier: 1.25
+    benefits_rate: 0.12  # 12% of salary
+    vacation_days: 20
+    
+  # Grant defaults
+  grant:
+    milestone_count: 3
+    success_probability: 0.8
+    
+  # Investment defaults
+  investment:
+    disbursement_schedule: immediate
+    
+  # Facility defaults
+  facility:
+    utilities_multiplier: 1.15  # 15% for utilities
+    
+  # Equipment defaults
+  equipment:
+    depreciation_method: straight_line
+    depreciation_years: 5

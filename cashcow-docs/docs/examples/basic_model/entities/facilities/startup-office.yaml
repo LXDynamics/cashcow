@@ -1,0 +1,82 @@
+type: facility
+name: "Startup Headquarters & Lab"
+facility_type: "Office & Light Manufacturing"
+location: "Hawthorne, CA"
+
+# Basic costs
+monthly_cost: 18000
+lease_start_date: "2024-01-01"
+lease_end_date: "2026-12-31"
+lease_term_months: 36
+
+# Facility details
+square_footage: 6000
+office_space: 3000  # sq ft
+lab_space: 2000     # sq ft  
+manufacturing_space: 1000  # sq ft
+
+# Cost breakdown
+cost_breakdown:
+  base_rent: 12000      # $2/sq ft for industrial space
+  utilities: 2500       # Electricity, gas, water
+  internet: 800         # High-speed fiber
+  security: 600         # Security system and monitoring
+  insurance: 1200       # Property insurance
+  maintenance: 900      # HVAC, general maintenance
+
+# Additional facility costs
+setup_costs:
+  security_deposit: 36000  # 2 months rent
+  buildout: 75000         # Lab equipment installation
+  permits: 15000          # City permits and inspections
+  
+# Utilities and operations
+utilities_multiplier: 1.15  # 15% above base for variability
+hvac_capacity: "10 tons"
+electrical_service: "200 amp, 3-phase"
+compressed_air: true
+specialty_gases: true
+
+# Compliance and certifications
+zoning: "M1 - Light Manufacturing"
+fire_department_approved: true
+epa_permits_required: false
+itar_facility_registration: true
+
+# Scaling considerations
+expansion_option: true
+max_headcount: 25
+parking_spaces: 15
+loading_dock: true
+
+# Lease terms
+rent_escalation: 0.03  # 3% annual increases
+early_termination_penalty: 6  # months rent
+renewal_options: 2  # Two 2-year options
+
+# Special features for rocket engine company
+test_cell_capable: false  # No engine testing on-site
+propellant_storage: false # No hazardous materials
+clean_room: "ISO 8"      # Light clean room for assembly
+crane_capacity: "2 tons"  # Overhead crane
+
+# Location advantages
+proximity_to_spacex: "2 miles"
+proximity_to_lax: "8 miles"
+proximity_to_suppliers: "Aerospace corridor"
+freeway_access: "405 & 105"
+
+# Team and operations
+expected_occupancy: 15   # Initial team size
+growth_capacity: 25      # Max team size
+shift_operation: "Single shift"
+visitor_access: "Controlled"
+
+notes: "Strategic location in Hawthorne aerospace corridor. Close to SpaceX and other aerospace companies for talent and supplier access. Facility sized for 2-year growth trajectory."
+
+tags:
+  - headquarters
+  - lab
+  - manufacturing
+  - hawthorne
+  - aerospace_corridor

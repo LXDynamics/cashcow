@@ -1,0 +1,72 @@
+type: grant
+name: "NSF SBIR Phase I - Advanced Propulsion"
+agency: "National Science Foundation"
+program: "Small Business Innovation Research"
+phase: "Phase I"
+
+# Grant details
+amount: 275000
+start_date: "2024-02-01"
+end_date: "2024-10-31"
+duration_months: 9
+
+# Disbursement schedule
+disbursement_schedule:
+  - milestone: "Project Kickoff"
+    percentage: 0.40
+    target_date: "2024-02-15"
+    amount: 110000
+    
+  - milestone: "Interim Technical Review"
+    percentage: 0.35
+    target_date: "2024-06-15"
+    amount: 96250
+    
+  - milestone: "Final Report & Demo"
+    percentage: 0.25
+    target_date: "2024-10-15"
+    amount: 68750
+
+# Success probability and risk factors
+success_probability: 0.85
+risk_factors:
+  - "Technical feasibility demonstration required"
+  - "Strict reporting timeline"
+  - "Government budget uncertainty"
+
+# Project scope
+technical_objectives:
+  - "Develop advanced combustion chamber design"
+  - "Demonstrate 15% efficiency improvement"
+  - "Complete preliminary testing"
+  - "Prepare Phase II proposal"
+
+# Team allocation
+team_allocation:
+  principal_investigator: "Alex Rodriguez"
+  engineering_hours: 1200
+  testing_hours: 400
+  reporting_hours: 200
+
+# Follow-on opportunities
+phase_ii_eligible: true
+phase_ii_potential_amount: 1500000
+commercialization_timeline: "2026-Q2"
+
+# Compliance requirements
+reporting_frequency: "Monthly"
+security_requirements: "ITAR controlled"
+intellectual_property: "Government has limited license"
+
+# Matching requirements
+cost_sharing_required: false
+matching_funds: 0
+
+notes: "Critical first grant for company. Success opens door to Phase II funding and establishes credibility with government customers."
+
+tags:
+  - sbir
+  - government
+  - research
+  - critical
+  - propulsion

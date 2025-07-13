@@ -1,0 +1,56 @@
+type: employee
+name: "Alex Rodriguez"
+position: "Founder & CEO"
+department: "Executive"
+start_date: "2024-01-01"
+end_date: null
+
+# Compensation
+salary: 180000
+overhead_multiplier: 1.25
+benefits_annual: 25000
+
+# Equity (founder)
+equity_eligible: true
+equity_shares: 2000000  # 20% of 10M shares
+equity_start_date: "2024-01-01"
+equity_cliff_months: 0  # No cliff for founder
+equity_vest_years: 4
+
+# Leadership responsibilities
+bonus_performance_max: 0.20  # 20% max performance bonus
+equity_acceleration_triggers:
+  - acquisition
+  - ipo
+  - termination_without_cause
+
+# Stipends and benefits
+professional_development_annual: 10000
+conference_budget_annual: 15000
+executive_insurance: 5000  # Annual
+
+# Special considerations
+security_clearance: "secret"
+board_member: true
+stock_options_83b_election: true
+
+# Skills and background
+background:
+  - "Former SpaceX Propulsion Engineer"
+  - "MS Aerospace Engineering, Stanford"
+  - "15 years rocket engine experience"
+
+skills:
+  - strategic_planning
+  - fundraising
+  - technical_leadership
+  - business_development
+  - regulatory_navigation
+
+notes: "Founded company after 8 years at SpaceX working on Raptor engine development. Led team of 50+ engineers on critical engine components."
+
+tags:
+  - founder
+  - executive
+  - critical
+  - technical
