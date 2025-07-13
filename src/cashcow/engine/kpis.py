@@ -99,13 +99,15 @@ class KPICalculator:
         """Calculate growth-related KPIs."""
         kpis = {}
         
-        # Revenue growth rate (month-over-month)
+        # Revenue growth rate (month-over-month) with null safety
         if len(df) >= 2:
             recent_revenue = df['total_revenue'].iloc[-3:].mean() if len(df) >= 3 else df['total_revenue'].iloc[-1]
             early_revenue = df['total_revenue'].iloc[:3].mean() if len(df) >= 3 else df['total_revenue'].iloc[0]
             
-            if early_revenue > 0:
-                months_span = min(len(df), 3)
+            # Ensure we have valid, non-null, positive values
+            if (pd.notna(early_revenue) and pd.notna(recent_revenue) and 
+                early_revenue > 0 and recent_revenue >= 0):
+                months_span = max(min(len(df), 3), 1)  # Ensure at least 1 month span
                 kpis['revenue_growth_rate'] = ((recent_revenue / early_revenue) ** (1/months_span) - 1) * 100
             else:
                 kpis['revenue_growth_rate'] = 0.0
@@ -209,11 +211,12 @@ class KPICalculator:
         else:
             kpis['project_cost_ratio'] = 0.0
         
-        # Operating leverage
+        # Operating leverage with null safety
         if len(df) >= 2:
-            revenue_change = df['total_revenue'].pct_change().mean()
-            expense_change = df['total_expenses'].pct_change().mean()
-            if expense_change != 0:
+            revenue_change = df['total_revenue'].pct_change().fillna(0).mean()
+            expense_change = df['total_expenses'].pct_change().fillna(0).mean()
+            if (pd.notna(expense_change) and expense_change != 0 and 
+                pd.notna(revenue_change)):
                 kpis['operating_leverage'] = revenue_change / expense_change
             else:
                 kpis['operating_leverage'] = 0.0
@@ -312,7 +315,7 @@ class KPICalculator:
         return float('inf')
     
     def _calculate_growth_rate(self, series: pd.Series) -> float:
-        """Calculate compound growth rate for a series."""
+        """Calculate compound growth rate for a series with null safety."""
         if len(series) < 2:
             return 0.0
         
@@ -320,10 +323,15 @@ class KPICalculator:
         end_val = series.iloc[-1]
         periods = len(series) - 1
         
-        if start_val <= 0:
+        # Comprehensive null and validity checks
+        if (pd.isna(start_val) or pd.isna(end_val) or 
+            start_val <= 0 or end_val < 0 or periods <= 0):
             return 0.0
         
-        return ((end_val / start_val) ** (1/periods) - 1) * 100
+        try:
+            return ((end_val / start_val) ** (1/periods) - 1) * 100
+        except (ZeroDivisionError, ValueError, OverflowError):
+            return 0.0
     
     def calculate_kpi_trends(self, df: pd.DataFrame, window: int = 3) -> pd.DataFrame:
         """Calculate rolling trends for key metrics.

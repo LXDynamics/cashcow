@@ -16,13 +16,13 @@ import weakref
 from memory_profiler import profile
 import tracemalloc
 
-from src.cashcow.storage.database import EntityStore
-from src.cashcow.storage.yaml_loader import YamlEntityLoader
-from src.cashcow.engine.cashflow import CashFlowEngine
-from src.cashcow.engine.calculators import CalculatorRegistry
-from src.cashcow.engine.builtin_calculators import register_builtin_calculators
-from src.cashcow.engine.kpis import KPICalculator
-from src.cashcow.models.entities import Employee, Grant, Investment, Facility, Equipment, Software
+from cashcow.storage.database import EntityStore
+from cashcow.storage.yaml_loader import YamlEntityLoader
+from cashcow.engine.cashflow import CashFlowEngine
+from cashcow.engine.calculators import CalculatorRegistry
+from cashcow.engine.builtin_calculators import register_builtin_calculators
+from cashcow.engine.kpis import KPICalculator
+from cashcow.models.entities import Employee, Grant, Investment, Facility, Equipment, Software
 
 
 class TestMemoryProfiler:
@@ -38,7 +38,7 @@ class TestMemoryProfiler:
         self.loader = YamlEntityLoader(self.entities_dir)
         self.registry = CalculatorRegistry()
         register_builtin_calculators(self.registry)
-        self.engine = CashFlowEngine(self.store, self.registry)
+        self.engine = CashFlowEngine(self.store)
         self.kpi_calculator = KPICalculator(self.store, self.registry)
         
         # Memory tracking

@@ -1,0 +1,8 @@
+type: employee
+name: Alexander Wright
+start_date: '2025-07-11'
+tags: []
+salary: 90000.0
+position: CEO
+department: Engineering
+equity_shares: 100

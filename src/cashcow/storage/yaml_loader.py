@@ -160,6 +160,112 @@ class YamlEntityLoader:
         
         return file_path
     
+    def generate_file_path(self, entity: BaseEntity) -> Path:
+        """Generate file path for an entity based on its type and name.
+        
+        Args:
+            entity: Entity to generate path for
+            
+        Returns:
+            Path where the entity file should be saved
+        """
+        type_dir = self.entities_dir
+        
+        # Map entity types to directories
+        if entity.type in ['employee']:
+            type_dir = type_dir / 'expenses' / 'employees'
+        elif entity.type in ['grant', 'investment', 'sale', 'service']:
+            type_dir = type_dir / 'revenue' / f"{entity.type}s"
+        elif entity.type in ['facility', 'software', 'equipment']:
+            type_dir = type_dir / 'expenses' / f"{entity.type.lower()}s"
+        elif entity.type == 'project':
+            type_dir = type_dir / 'projects'
+        else:
+            type_dir = type_dir / entity.type
+        
+        # Generate filename from entity name
+        safe_name = entity.name.lower().replace(' ', '-').replace('/', '-')
+        return type_dir / f"{safe_name}.yaml"
+    
+    def load_entity(self, file_path: Union[str, Path]) -> Optional[BaseEntity]:
+        """Load a single entity from a YAML file. Alias for load_file.
+        
+        Args:
+            file_path: Path to YAML file
+            
+        Returns:
+            Entity object or None if file is invalid
+            
+        Raises:
+            yaml.YAMLError: If YAML file is malformed
+        """
+        file_path = Path(file_path)
+        
+        try:
+            with open(file_path, 'r') as f:
+                data = yaml.load(f, Loader=DateSafeLoader)
+            
+            if not data or not isinstance(data, dict):
+                return None
+            
+            # Add file path as metadata
+            data['_file_path'] = str(file_path)
+            
+            return create_entity(data)
+            
+        except yaml.YAMLError:
+            # Re-raise YAML errors for test compatibility
+            raise
+        except Exception as e:
+            print(f"Error loading {file_path}: {e}")
+            return None
+    
+    def load_all_entities(self) -> List[BaseEntity]:
+        """Load all entities from the entities directory. Alias for load_all.
+        
+        Returns:
+            List of all loaded entities
+        """
+        return self.load_all()
+    
+    def validate_entity_data(self, data: Dict[str, Any]) -> bool:
+        """Validate entity data structure.
+        
+        Args:
+            data: Entity data dictionary
+            
+        Returns:
+            True if data is valid, False otherwise
+        """
+        try:
+            create_entity(data)
+            return True
+        except Exception:
+            return False
+    
+    def handle_date_fields(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Process date fields in entity data.
+        
+        Args:
+            data: Entity data dictionary
+            
+        Returns:
+            Processed data with date objects
+        """
+        from datetime import date
+        
+        processed_data = data.copy()
+        
+        # Convert string dates to date objects
+        for field in ['start_date', 'end_date']:
+            if field in processed_data and isinstance(processed_data[field], str):
+                try:
+                    processed_data[field] = date.fromisoformat(processed_data[field])
+                except ValueError:
+                    pass  # Keep original value if conversion fails
+        
+        return processed_data
+    
     def validate_all(self) -> Dict[str, List[str]]:
         """Validate all YAML files in the entities directory.
         

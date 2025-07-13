@@ -44,8 +44,13 @@ class BaseEntity(BaseModel):
                 raise ValueError('end_date must be after start_date')
         return v
     
-    def is_active(self, as_of_date: date) -> bool:
+    def is_active(self, context=None) -> bool:
         """Check if the entity is active on a given date."""
+        if isinstance(context, dict):
+            as_of_date = context.get('as_of_date', date.today())
+        else:
+            as_of_date = context or date.today()
+        
         if self.start_date > as_of_date:
             return False
         if self.end_date is None:

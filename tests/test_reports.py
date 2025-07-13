@@ -31,7 +31,7 @@ class TestReportGenerator:
         register_builtin_calculators(self.registry)
         self.engine = CashFlowEngine(self.store)
         self.kpi_calculator = KPICalculator()
-        self.report_generator = ReportGenerator(str(self.reports_dir))
+        self.report_generator = ReportGenerator(str(self.reports_dir), self.store, self.engine, self.kpi_calculator)
     
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
@@ -113,6 +113,13 @@ class TestReportGenerator:
         kpis = self.kpi_calculator.calculate_all_kpis(forecast_df)
         
         return forecast_df, kpis
+    
+    def _scale_numeric_columns(self, df, scale_factor):
+        """Scale only numeric columns in a DataFrame."""
+        df_copy = df.copy()
+        numeric_cols = df_copy.select_dtypes(include=['number']).columns
+        df_copy[numeric_cols] = df_copy[numeric_cols] * scale_factor
+        return df_copy
     
     def test_report_generator_initialization(self):
         """Test ReportGenerator initialization"""
@@ -228,9 +235,13 @@ class TestReportGenerator:
         forecast_df, kpis = self.create_test_data()
         
         # Create scenario results dictionary
+        optimistic_df = forecast_df.copy()
+        numeric_cols = forecast_df.select_dtypes(include=['number']).columns
+        optimistic_df[numeric_cols] = optimistic_df[numeric_cols] * 1.1
+        
         scenario_results = {
             'baseline': forecast_df,
-            'optimistic': forecast_df * 1.1,  # Simple optimization
+            'optimistic': optimistic_df,
         }
         
         # Generate chart
@@ -537,12 +548,12 @@ class TestReportGenerator:
                 'description': 'Baseline scenario'
             },
             'optimistic': {
-                'forecast': forecast_df * 1.2,  # 20% increase
+                'forecast': self._scale_numeric_columns(forecast_df, 1.2),  # 20% increase
                 'kpis': {k: v * 1.1 for k, v in kpis.items() if isinstance(v, (int, float))},
                 'description': 'Optimistic scenario'
             },
             'conservative': {
-                'forecast': forecast_df * 0.8,  # 20% decrease
+                'forecast': self._scale_numeric_columns(forecast_df, 0.8),  # 20% decrease
                 'kpis': {k: v * 0.9 for k, v in kpis.items() if isinstance(v, (int, float))},
                 'description': 'Conservative scenario'
             }
@@ -665,8 +676,8 @@ class TestReportGenerator:
         
         # Test with non-existent output directory
         invalid_generator = ReportGenerator(
-            self.store, self.engine, self.kpi_calculator,
-            Path('/non/existent/directory')
+            str(Path('/non/existent/directory')),
+            self.store, self.engine, self.kpi_calculator
         )
         
         # Should handle invalid output directory
@@ -700,8 +711,9 @@ class TestReportGenerator:
         )
         
         # Verify chart was created with custom settings
-        assert chart_path.exists()
-        assert chart_path.stat().st_size > 0
+        chart_path_obj = Path(chart_path)
+        assert chart_path_obj.exists()
+        assert chart_path_obj.stat().st_size > 0
         
         # Test HTML report customization
         html_path = self.report_generator.generate_html_report(
@@ -716,7 +728,8 @@ class TestReportGenerator:
         )
         
         # Verify HTML was created with custom settings
-        assert html_path.exists()
+        html_path_obj = Path(html_path)
+        assert html_path_obj.exists()
         
         with open(html_path, 'r') as f:
             html_content = f.read()

@@ -5,7 +5,7 @@
 ### Prerequisites Check
 ```bash
 # Verify environment before starting any task
-cd /home/alex/cashcow
+cd  ~/cashcow
 poetry --version  # Should show Poetry 1.0+
 poetry run python --version  # Should show Python 3.10+
 poetry run pytest --version  # Should show pytest 8.0+
@@ -167,7 +167,7 @@ case $TASK_ID in
         ;;
     "C3")
         # Memory profiling specific setup
-        export PYTHONPATH="/home/alex/cashcow/src:$PYTHONPATH"
+        export PYTHONPATH=" ~/cashcow/src:$PYTHONPATH"
         ;;
 esac
 
@@ -319,7 +319,7 @@ poetry install  # Reinstall dependencies
 poetry run python -c "import src.cashcow"  # Test import
 
 # If still failing
-export PYTHONPATH="/home/alex/cashcow/src:$PYTHONPATH"
+export PYTHONPATH=" ~/cashcow/src:$PYTHONPATH"
 poetry run python -c "import cashcow"
 ```
 
@@ -459,7 +459,7 @@ chmod +w /tmp/
 ## QUALITY ASSURANCE CHECKLISTS
 
 ### Pre-Execution Checklist
-- [ ] Working directory: `/home/alex/cashcow`
+- [ ] Working directory: ` ~/cashcow`
 - [ ] Poetry environment activated
 - [ ] Dependencies installed (`poetry install`)
 - [ ] Test files exist and are readable

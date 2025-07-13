@@ -3,8 +3,8 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Dict, Any
 
-from src.cashcow.models.base import BaseEntity
-from src.cashcow.models.entities import (
+from cashcow.models.base import BaseEntity
+from cashcow.models.entities import (
     Employee, Grant, Investment, Sale, Service,
     Facility, Software, Equipment, Project, create_entity
 )
@@ -526,12 +526,12 @@ class TestProject:
             name='Engine Development',
             start_date=date(2024, 1, 1),
             end_date=date(2024, 12, 31),
-            budget=1000000
+            total_budget=1000000
         )
         
         assert project.type == 'project'
         assert project.name == 'Engine Development'
-        assert project.budget == 1000000
+        assert project.total_budget == 1000000
     
     def test_project_with_milestones(self):
         project = Project(
@@ -539,7 +539,7 @@ class TestProject:
             name='Research Project',
             start_date=date(2024, 1, 1),
             end_date=date(2024, 12, 31),
-            budget=500000,
+            total_budget=500000,
             milestones=[
                 {'name': 'Design Phase', 'budget': 150000, 'due_date': '2024-04-01'},
                 {'name': 'Prototype', 'budget': 200000, 'due_date': '2024-08-01'},
@@ -557,7 +557,7 @@ class TestProject:
             name='Test Project',
             start_date=date(2024, 1, 1),
             end_date=date(2024, 12, 31),
-            budget=100000,
+            total_budget=100000,
             spent_to_date=35000
         )
         
@@ -570,7 +570,7 @@ class TestProject:
             name='Test Project',
             start_date=date(2024, 1, 1),
             end_date=date(2024, 12, 31),
-            budget=100000,
+            total_budget=100000,
             spent_to_date=30000,
             milestones=[
                 {'name': 'Phase 1', 'budget': 50000, 'due_date': '2024-06-01', 'completed': True},
@@ -687,3 +687,207 @@ class TestEntityValidation:
                 purchase_price=100000,
                 depreciation_method='invalid_method'  # Should be valid method
             )
+
+
+class TestEmployeeValidation:
+    """Extended validation tests for Employee model."""
+    
+    def test_overhead_multiplier_validation(self):
+        """Test overhead multiplier validation boundaries."""
+        # Test valid boundaries
+        employee1 = Employee(
+            type='employee',
+            name='Test Employee',
+            start_date=date(2024, 1, 1),
+            salary=100000,
+            overhead_multiplier=1.0  # Min valid value
+        )
+        assert employee1.overhead_multiplier == 1.0
+        
+        employee2 = Employee(
+            type='employee',
+            name='Test Employee 2',
+            start_date=date(2024, 1, 1),
+            salary=100000,
+            overhead_multiplier=5.0  # Max valid value
+        )
+        assert employee2.overhead_multiplier == 5.0
+        
+        # Test invalid values
+        with pytest.raises(ValueError, match='overhead_multiplier must be between 1.0 and 5.0'):
+            Employee(
+                type='employee',
+                name='Invalid Employee',
+                start_date=date(2024, 1, 1),
+                salary=100000,
+                overhead_multiplier=0.5  # Too low
+            )
+            
+        with pytest.raises(ValueError, match='overhead_multiplier must be between 1.0 and 5.0'):
+            Employee(
+                type='employee',
+                name='Invalid Employee',
+                start_date=date(2024, 1, 1),
+                salary=100000,
+                overhead_multiplier=6.0  # Too high
+            )
+    
+    def test_bonus_percentage_validation(self):
+        """Test bonus percentage validation."""
+        # Test valid values
+        employee1 = Employee(
+            type='employee',
+            name='Test Employee',
+            start_date=date(2024, 1, 1),
+            salary=100000,
+            bonus_percentage=0.0  # Min valid
+        )
+        assert employee1.bonus_percentage == 0.0
+        
+        employee2 = Employee(
+            type='employee',
+            name='Test Employee 2',
+            start_date=date(2024, 1, 1),
+            salary=100000,
+            bonus_percentage=1.0  # Max valid
+        )
+        assert employee2.bonus_percentage == 1.0
+        
+        # Test invalid values
+        with pytest.raises(ValueError, match='bonus_percentage must be between 0 and 1.0'):
+            Employee(
+                type='employee',
+                name='Invalid Employee',
+                start_date=date(2024, 1, 1),
+                salary=100000,
+                bonus_percentage=-0.1  # Negative
+            )
+            
+        with pytest.raises(ValueError, match='bonus_percentage must be between 0 and 1.0'):
+            Employee(
+                type='employee',
+                name='Invalid Employee',
+                start_date=date(2024, 1, 1),
+                salary=100000,
+                bonus_percentage=1.5  # Too high
+            )
+
+
+class TestGrantCalculations:
+    """Extended tests for Grant calculation methods."""
+    
+    def test_calculate_scheduled_payment(self):
+        """Test grant scheduled payment calculation."""
+        grant = Grant(
+            type='grant',
+            name='Test Grant',
+            start_date=date(2024, 1, 1),
+            end_date=date(2024, 12, 31),
+            amount=120000,
+            payment_schedule=[
+                {'date': '2024-01-01', 'amount': 40000},
+                {'date': '2024-07-01', 'amount': 40000},
+                {'date': '2024-12-01', 'amount': 40000}
+            ]
+        )
+        
+        # Test payment on scheduled date
+        assert grant.calculate_monthly_disbursement(date(2024, 1, 1)) == 40000
+        assert grant.calculate_monthly_disbursement(date(2024, 7, 1)) == 40000
+        assert grant.calculate_monthly_disbursement(date(2024, 12, 1)) == 40000
+        
+        # Test no payment on non-scheduled date
+        assert grant.calculate_monthly_disbursement(date(2024, 2, 1)) == 0
+        assert grant.calculate_monthly_disbursement(date(2024, 6, 1)) == 0
+    
+    def test_calculate_even_disbursement(self):
+        """Test grant even disbursement calculation."""
+        grant = Grant(
+            type='grant',
+            name='Test Grant',
+            start_date=date(2024, 1, 1),
+            end_date=date(2024, 12, 31),
+            amount=120000
+            # No payment_schedule, so should use even distribution
+        )
+        
+        # Calculate expected months: (2024-2024)*12 + (12-1) = 11 months
+        grant_months = 11  # From January to December is 11 months difference
+        expected_monthly = 120000 / grant_months
+        assert grant.calculate_monthly_disbursement(date(2024, 1, 1)) == expected_monthly
+        assert grant.calculate_monthly_disbursement(date(2024, 6, 1)) == expected_monthly
+        assert grant.calculate_monthly_disbursement(date(2024, 12, 1)) == expected_monthly
+        
+        # Should return 0 outside grant period
+        assert grant.calculate_monthly_disbursement(date(2023, 12, 1)) == 0
+        assert grant.calculate_monthly_disbursement(date(2025, 1, 1)) == 0
+
+
+class TestServiceCalculations:
+    """Extended tests for Service calculation methods."""
+    
+    def test_calculate_monthly_revenue_with_end_date(self):
+        """Test service monthly revenue calculation with end date."""
+        service = Service(
+            type='service',
+            name='Test Service',
+            start_date=date(2024, 1, 1),
+            end_date=date(2024, 6, 30),  
+            contract_value=60000
+        )
+        
+        # Calculate expected months: (2024-2024)*12 + (6-1) = 5 months
+        service_months = 5  # From January to June is 5 months difference
+        expected_monthly = 60000 / service_months
+        actual_monthly = service.calculate_monthly_revenue()
+        assert actual_monthly == expected_monthly
+    
+    def test_calculate_monthly_revenue_without_end_date(self):
+        """Test service monthly revenue calculation without end date."""
+        service = Service(
+            type='service',
+            name='Test Service',
+            start_date=date(2024, 1, 1),
+            # No end_date - should default to annual distribution
+            contract_value=120000
+        )
+        
+        # Should distribute over 12 months (default)
+        expected_monthly = 120000 / 12
+        actual_monthly = service.calculate_monthly_revenue()
+        assert actual_monthly == expected_monthly
+
+
+class TestFacilityCalculations:
+    """Extended tests for Facility calculation methods."""
+    
+    def test_calculate_monthly_cost_annual_payment(self):
+        """Test facility cost calculation with annual payment frequency."""
+        facility = Facility(
+            type='facility',
+            name='Test Facility',
+            start_date=date(2024, 1, 1),
+            monthly_cost=120000,  # Annual amount
+            payment_frequency='annual'
+        )
+        
+        # Should only charge in January for annual frequency
+        assert facility.calculate_monthly_cost(date(2024, 1, 1)) == 120000
+        assert facility.calculate_monthly_cost(date(2024, 2, 1)) == 0
+        assert facility.calculate_monthly_cost(date(2024, 6, 1)) == 0
+        assert facility.calculate_monthly_cost(date(2024, 12, 1)) == 0
+    
+    def test_calculate_monthly_cost_with_utilities(self):
+        """Test facility cost calculation with utilities."""
+        facility = Facility(
+            type='facility',
+            name='Test Facility',
+            start_date=date(2024, 1, 1),
+            monthly_cost=10000,
+            utilities_monthly=2000,
+            insurance_annual=12000  # Should add 1000 per month
+        )
+        
+        # Should include base cost + utilities + monthly portion of insurance
+        expected_total = 10000 + 2000 + (12000 / 12)
+        assert facility.calculate_monthly_cost(date(2024, 1, 1)) == expected_total

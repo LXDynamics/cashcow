@@ -15,6 +15,7 @@ from sqlalchemy import (
     Table,
     create_engine,
     select,
+    text,
 )
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -72,9 +73,11 @@ class EntityStore:
         import yaml
         
         count = 0
-        async with self.AsyncSession() as session:
+        session = None
+        try:
+            session = self.AsyncSession()
             # Clear existing records
-            await session.execute(f"DELETE FROM {EntityRecord.__tablename__}")
+            await session.execute(text(f"DELETE FROM {EntityRecord.__tablename__}"))
             
             # Walk through all YAML files
             for yaml_file in entities_dir.rglob("*.yaml"):
@@ -102,6 +105,9 @@ class EntityStore:
                     print(f"Error loading {yaml_file}: {e}")
             
             await session.commit()
+        finally:
+            if session:
+                await session.close()
         
         return count
     
@@ -190,6 +196,115 @@ class EntityStore:
             filters['type'] = entity_type
         return self.query(filters)
     
+    def add_entity(self, entity: BaseEntity, file_path: Optional[str] = None) -> int:
+        """Add a single entity to the store.
+        
+        Args:
+            entity: Entity to add
+            file_path: Optional file path (for temporary/memory storage can be None)
+            
+        Returns:
+            Entity ID in database
+        """
+        import uuid
+        
+        with self.Session() as session:
+            # Generate unique file path if not provided
+            if not file_path:
+                unique_id = str(uuid.uuid4())[:8]
+                file_path = f"temp_{entity.type}_{entity.name}_{unique_id}"
+            
+            record = EntityRecord(
+                type=entity.type,
+                name=entity.name,
+                start_date=entity.start_date,
+                end_date=entity.end_date,
+                file_path=file_path,
+                data=json.loads(entity.model_dump_json())
+            )
+            session.add(record)
+            session.commit()
+            return record.id
+    
+    def get_all_entities(self) -> List[BaseEntity]:
+        """Get all entities from the store.
+        
+        Returns:
+            List of all entities
+        """
+        return self.query()
+    
+    def get_entities_by_type(self, entity_type: str) -> List[BaseEntity]:
+        """Get entities by type.
+        
+        Args:
+            entity_type: Type of entities to retrieve
+            
+        Returns:
+            List of entities of specified type
+        """
+        return self.query({'type': entity_type})
+    
+    def get_entities_by_tags(self, tags: List[str]) -> List[BaseEntity]:
+        """Get entities by tags.
+        
+        Args:
+            tags: List of tags to filter by
+            
+        Returns:
+            List of entities matching tags
+        """
+        return self.query({'tags': tags})
+    
+    def update_entity(self, entity: BaseEntity) -> None:
+        """Update an existing entity in the store.
+        
+        Args:
+            entity: Updated entity object
+        """
+        with self.Session() as session:
+            # Find existing record by name and type
+            record = session.query(EntityRecord).filter(
+                EntityRecord.name == entity.name,
+                EntityRecord.type == entity.type
+            ).first()
+            
+            if record:
+                # Update the record
+                record.start_date = entity.start_date
+                record.end_date = entity.end_date
+                record.data = json.loads(entity.model_dump_json())
+                record.updated_at = datetime.utcnow().date()
+                session.commit()
+            else:
+                # Entity doesn't exist, add it
+                self.add_entity(entity)
+    
+    def delete_entity(self, entity_name: str, entity_type: Optional[str] = None) -> bool:
+        """Delete an entity from the store.
+        
+        Args:
+            entity_name: Name of entity to delete
+            entity_type: Optional entity type for more specific deletion
+            
+        Returns:
+            True if entity was deleted, False if not found
+        """
+        with self.Session() as session:
+            query = session.query(EntityRecord).filter(
+                EntityRecord.name == entity_name
+            )
+            
+            if entity_type:
+                query = query.filter(EntityRecord.type == entity_type)
+            
+            record = query.first()
+            if record:
+                session.delete(record)
+                session.commit()
+                return True
+            return False
+
     def close(self):
         """Close database connections."""
         self.engine.dispose()
@@ -197,3 +312,26 @@ class EntityStore:
     async def aclose(self):
         """Close async database connections."""
         await self.async_engine.dispose()
+    
+    def __enter__(self):
+        """Context manager entry."""
+        return self
+        
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit with cleanup."""
+        self.close()
+        
+    async def __aenter__(self):
+        """Async context manager entry."""
+        return self
+        
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Async context manager exit with cleanup."""
+        await self.aclose()
+    
+    def __del__(self):
+        """Destructor to ensure cleanup when object is garbage collected."""
+        try:
+            self.close()
+        except Exception:
+            pass

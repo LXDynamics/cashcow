@@ -80,7 +80,7 @@ class TestSalaryCalculator:
             name='Test Employee',
             start_date=date(2024, 1, 1),
             salary=25 * 40 * 52,  # Annual salary equivalent
-            pay_frequency='hourly',
+            pay_frequency='weekly',
             hours_per_week=40
         )
         context = {'period_start': date(2024, 1, 1), 'period_end': date(2024, 1, 31)}

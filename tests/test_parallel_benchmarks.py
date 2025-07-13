@@ -12,12 +12,12 @@ import pandas as pd
 import numpy as np
 from unittest.mock import Mock, patch
 
-from src.cashcow.storage.database import EntityStore
-from src.cashcow.engine.cashflow import CashFlowEngine
-from src.cashcow.engine.calculators import CalculatorRegistry
-from src.cashcow.engine.builtin_calculators import register_builtin_calculators
-from src.cashcow.engine.kpis import KPICalculator
-from src.cashcow.models.entities import Employee, Grant, Investment, Facility
+from cashcow.storage.database import EntityStore
+from cashcow.engine.cashflow import CashFlowEngine
+from cashcow.engine.calculators import CalculatorRegistry
+from cashcow.engine.builtin_calculators import register_builtin_calculators
+from cashcow.engine.kpis import KPICalculator
+from cashcow.models.entities import Employee, Grant, Investment, Facility
 
 
 class TestParallelCalculationBenchmarks:
@@ -30,7 +30,7 @@ class TestParallelCalculationBenchmarks:
         self.store = EntityStore(str(self.db_path))
         self.registry = CalculatorRegistry()
         register_builtin_calculators(self.registry)
-        self.engine = CashFlowEngine(self.store, self.registry)
+        self.engine = CashFlowEngine(self.store)
         self.kpi_calculator = KPICalculator(self.store, self.registry)
         
         # System info
@@ -713,7 +713,7 @@ class TestParallelCalculationOptimizations:
         self.store = EntityStore(str(self.db_path))
         self.registry = CalculatorRegistry()
         register_builtin_calculators(self.registry)
-        self.engine = CashFlowEngine(self.store, self.registry)
+        self.engine = CashFlowEngine(self.store)
     
     def tearDown(self):
         shutil.rmtree(self.temp_dir)

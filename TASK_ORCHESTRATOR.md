@@ -546,7 +546,7 @@ def log_task_completion(task_id, agent_id, duration, status, metrics):
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="/home/alex/cashcow"
+PROJECT_DIR=" ~/cashcow"
 LOG_DIR="$PROJECT_DIR/orchestration_logs"
 AGENT_COUNT=6
 

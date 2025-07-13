@@ -362,15 +362,16 @@ def calculate_total_compensation(entity: BaseEntity, context: Dict[str, Any]) ->
     # Annual salary
     annual_comp = entity.salary
     
-    # Add potential bonuses
-    if entity.bonus_performance_max:
+    # Add potential bonuses (with null checks)
+    if entity.bonus_performance_max and entity.bonus_performance_max > 0:
         annual_comp += entity.salary * entity.bonus_performance_max
     
-    if entity.bonus_milestones_max:
+    if entity.bonus_milestones_max and entity.bonus_milestones_max > 0:
         annual_comp += entity.salary * entity.bonus_milestones_max
     
-    # Add equity value (annual vesting)
-    if entity.equity_eligible and entity.equity_shares and equity_value_per_share:
+    # Add equity value (annual vesting) with null checks
+    if (entity.equity_eligible and entity.equity_shares and equity_value_per_share and 
+        entity.equity_vest_years and entity.equity_vest_years > 0):
         annual_equity_vest = entity.equity_shares / entity.equity_vest_years
         annual_comp += annual_equity_vest * equity_value_per_share
     
