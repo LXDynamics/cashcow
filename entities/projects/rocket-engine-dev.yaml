@@ -1,0 +1,28 @@
+type: project
+name: "Advanced Rocket Engine Development"
+start_date: "2024-01-01"
+end_date: "2025-12-31"
+total_budget: 1000000.0
+project_manager: "John Smith"
+status: "active"
+completion_percentage: 25.0
+priority: "high"
+milestones:
+  - name: "Design Phase Complete"
+    date: "2024-06-30"
+    status: "completed"
+  - name: "Prototype Development"
+    date: "2024-12-31"
+    status: "in_progress"
+  - name: "Testing Phase"
+    date: "2025-06-30"
+    status: "planned"
+team_members: ["John Smith", "Jane Doe"]
+planned_end_date: "2025-12-31"
+budget_categories:
+  personnel: 600000.0
+  materials: 250000.0
+  equipment: 100000.0
+  overhead: 50000.0
+tags: ["research", "development", "propulsion"]
+notes: "Next-generation rocket engine for small satellite launches"

@@ -1,7 +1,6 @@
 """Entity type models for the CashCow system."""
 
 from datetime import date
-from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
 from pydantic import field_validator
@@ -11,13 +10,13 @@ from .base import BaseEntity
 
 class Employee(BaseEntity):
     """Employee entity with flexible attributes."""
-    
+
     # Override type default
     type: str = "employee"
-    
+
     # Required employee fields
     salary: float
-    
+
     # Common optional fields with defaults
     position: Optional[str] = None
     department: Optional[str] = None
@@ -25,23 +24,23 @@ class Employee(BaseEntity):
     equity_eligible: bool = False
     equity_shares: Optional[int] = None
     equity_start_date: Optional[date] = None
-    
+
     # Pay frequency and structure
     pay_frequency: str = 'monthly'
     hours_per_week: Optional[float] = None
     bonus_percentage: Optional[float] = None
     allowances: Optional[Dict[str, float]] = None
     benefits: Optional[Dict[str, float]] = None
-    
+
     # Equity vesting parameters
     vesting_years: Optional[int] = None
     cliff_years: Optional[int] = None
-    
+
     # Bonus parameters
     bonus_performance_max: Optional[float] = None
     bonus_milestones_max: Optional[float] = None
     equity_vest_years: Optional[int] = None
-    
+
     @field_validator('salary')
     @classmethod
     def validate_salary(cls, v: float) -> float:
@@ -49,7 +48,7 @@ class Employee(BaseEntity):
         if v <= 0:
             raise ValueError('salary must be positive')
         return v
-    
+
     @field_validator('pay_frequency')
     @classmethod
     def validate_pay_frequency(cls, v: str) -> str:
@@ -58,7 +57,7 @@ class Employee(BaseEntity):
         if v not in valid_frequencies:
             raise ValueError(f"Invalid pay frequency: {v}")
         return v
-    
+
     @field_validator('overhead_multiplier')
     @classmethod
     def validate_overhead_multiplier(cls, v: float) -> float:
@@ -66,7 +65,7 @@ class Employee(BaseEntity):
         if v < 1.0 or v > 5.0:
             raise ValueError('overhead_multiplier must be between 1.0 and 5.0')
         return v
-    
+
     @field_validator('bonus_percentage')
     @classmethod
     def validate_bonus_percentage(cls, v: Optional[float]) -> Optional[float]:
@@ -74,72 +73,72 @@ class Employee(BaseEntity):
         if v is not None and (v < 0 or v > 1.0):
             raise ValueError('bonus_percentage must be between 0 and 1.0')
         return v
-    
+
     def calculate_total_cost(self, context) -> float:
         """Calculate total monthly cost including overhead, benefits, and allowances."""
         # Calculate monthly salary
         monthly_salary = self.salary / 12
-        
+
         # Calculate benefits total
         benefits_total = 0
         if self.benefits:
             benefits_total = sum(self.benefits.values())
-        
+
         # Calculate allowances total
         allowances_total = 0
         if self.allowances:
             allowances_total = sum(self.allowances.values())
-        
+
         # Calculate overhead (additional multiplier beyond base salary)
         overhead_amount = monthly_salary * (self.overhead_multiplier - 1)
-        
+
         total_cost = monthly_salary + benefits_total + allowances_total + overhead_amount
-        
+
         return total_cost
 
 
 class Grant(BaseEntity):
     """Grant funding entity."""
-    
+
     type: str = "grant"
-    
+
     # Required fields
     amount: float
-    
+
     # Common optional fields
     agency: Optional[str] = None
     payment_schedule: Optional[List[Dict[str, Any]]] = None
     reporting_requirements: Optional[str] = None
     indirect_cost_rate: float = 0.0
     milestones: Optional[List[Dict[str, Any]]] = None
-    
+
     def calculate_monthly_disbursement(self, as_of_date: date) -> float:
         """Calculate expected monthly disbursement."""
         if not self.is_active(as_of_date):
             return 0.0
-        
+
         # If payment schedule exists, use it
         if self.payment_schedule:
             return self._calculate_scheduled_payment(as_of_date)
-        
+
         # Otherwise, distribute evenly over grant period
         return self._calculate_even_disbursement(as_of_date)
-    
+
     def _calculate_scheduled_payment(self, as_of_date: date) -> float:
         """Calculate payment based on schedule."""
         current_month = as_of_date.replace(day=1)
         monthly_payment = 0.0
-        
+
         for payment in self.payment_schedule:
             if 'date' in payment and 'amount' in payment:
                 payment_date = date.fromisoformat(payment['date']) if isinstance(payment['date'], str) else payment['date']
                 payment_month = payment_date.replace(day=1)
-                
+
                 if payment_month == current_month:
                     monthly_payment += payment['amount']
-        
+
         return monthly_payment
-    
+
     def _calculate_even_disbursement(self, as_of_date: date) -> float:
         """Calculate even monthly disbursement."""
         if not self.end_date:
@@ -148,9 +147,9 @@ class Grant(BaseEntity):
         else:
             grant_months = (self.end_date.year - self.start_date.year) * 12 + \
                          (self.end_date.month - self.start_date.month)
-        
+
         return self.amount / max(grant_months, 1)
-    
+
     @field_validator('amount')
     @classmethod
     def validate_amount(cls, v: float) -> float:
@@ -158,32 +157,46 @@ class Grant(BaseEntity):
         if v <= 0:
             raise ValueError('amount must be positive')
         return v
-    
+
     def validate_milestones(self) -> None:
         """Validate that milestone amounts don't exceed total grant amount."""
         if not self.milestones:
             return
-        
+
         total_milestone_amount = sum(milestone.get('amount', 0) for milestone in self.milestones)
         if total_milestone_amount > self.amount:
             raise ValueError(f'Total milestone amount ({total_milestone_amount}) exceeds grant amount ({self.amount})')
 
 
 class Investment(BaseEntity):
-    """Investment funding entity."""
-    
+    """Investment funding entity with cap table integration."""
+
     type: str = "investment"
-    
+
     # Required fields
     amount: float
-    
-    # Common optional fields
+
+    # Legacy optional fields (maintained for backward compatibility)
     investor: Optional[str] = None
     round_name: Optional[str] = None
     valuation: Optional[float] = None
     terms: Optional[Dict[str, Any]] = None
     disbursement_schedule: Optional[List[Dict[str, Any]]] = None
-    
+
+    # Cap table extensions (all optional for backward compatibility)
+    shares_issued: Optional[int] = None
+    share_class: Optional[str] = None
+    price_per_share: Optional[float] = None
+    pre_money_valuation: Optional[float] = None
+    post_money_valuation: Optional[float] = None
+    liquidation_preference: Optional[float] = 1.0
+    participating: bool = False
+    anti_dilution_provision: Optional[str] = None  # "weighted_average", "ratchet", "none"
+    board_seats: Optional[int] = None
+    protective_provisions: Optional[List[str]] = None
+    voting_rights_per_share: Optional[float] = None
+    conversion_rights: Optional[Dict[str, Any]] = None
+
     @field_validator('amount')
     @classmethod
     def validate_amount(cls, v: float) -> float:
@@ -191,60 +204,207 @@ class Investment(BaseEntity):
         if v <= 0:
             raise ValueError('amount must be positive')
         return v
-    
+
     def calculate_monthly_disbursement(self, as_of_date: date) -> float:
         """Calculate monthly investment disbursement."""
         if not self.is_active(as_of_date):
             return 0.0
-        
+
         # Use disbursement schedule if available
         if self.disbursement_schedule:
             return self._calculate_scheduled_disbursement(as_of_date)
-        
+
         # Otherwise assume lump sum in first month
         return self._calculate_lump_sum(as_of_date)
-    
+
     def _calculate_scheduled_disbursement(self, as_of_date: date) -> float:
         """Calculate scheduled disbursement."""
         current_month = as_of_date.replace(day=1)
         monthly_amount = 0.0
-        
+
         for disbursement in self.disbursement_schedule:
             if 'date' in disbursement and 'amount' in disbursement:
                 disbursement_date = date.fromisoformat(disbursement['date']) if isinstance(disbursement['date'], str) else disbursement['date']
                 disbursement_month = disbursement_date.replace(day=1)
-                
+
                 if disbursement_month == current_month:
                     monthly_amount += disbursement['amount']
-        
+
         return monthly_amount
-    
+
     def _calculate_lump_sum(self, as_of_date: date) -> float:
         """Calculate lump sum disbursement in first month."""
         start_month = self.start_date.replace(day=1)
         current_month = as_of_date.replace(day=1)
-        
+
         if start_month == current_month:
             return self.amount
-        
+
         return 0.0
+
+    # Cap table validators and methods
+    @field_validator('liquidation_preference')
+    @classmethod
+    def validate_liquidation_preference(cls, v: Optional[float]) -> Optional[float]:
+        """Ensure liquidation preference is reasonable."""
+        if v is not None and (v < 0 or v > 10):
+            raise ValueError('liquidation_preference must be between 0 and 10')
+        return v
+
+    @field_validator('anti_dilution_provision')
+    @classmethod
+    def validate_anti_dilution_provision(cls, v: Optional[str]) -> Optional[str]:
+        """Ensure anti-dilution provision is valid."""
+        if v is not None:
+            valid_provisions = ['weighted_average', 'ratchet', 'none']
+            if v.lower() not in valid_provisions:
+                raise ValueError(f'anti_dilution_provision must be one of: {valid_provisions}')
+            return v.lower()
+        return v
+
+    @field_validator('board_seats')
+    @classmethod
+    def validate_board_seats(cls, v: Optional[int]) -> Optional[int]:
+        """Ensure board seats is non-negative."""
+        if v is not None and v < 0:
+            raise ValueError('board_seats cannot be negative')
+        return v
+
+    @field_validator('voting_rights_per_share')
+    @classmethod
+    def validate_voting_rights(cls, v: Optional[float]) -> Optional[float]:
+        """Ensure voting rights is reasonable."""
+        if v is not None and (v < 0 or v > 100):
+            raise ValueError('voting_rights_per_share must be between 0 and 100')
+        return v
+
+    def to_funding_round(self) -> Optional['FundingRound']:
+        """Convert Investment to FundingRound entity for cap table analysis."""
+        # Import here to avoid circular imports
+        from .captable import FundingRound
+
+        # Only convert if we have sufficient cap table data
+        if not (self.shares_issued or self.price_per_share or self.pre_money_valuation):
+            return None
+
+        round_data = {
+            'type': 'funding_round',
+            'name': self.round_name or f"{self.investor} Investment",
+            'start_date': self.start_date,
+            'round_type': self._infer_round_type(),
+            'amount_raised': self.amount,
+            'shares_issued': self.shares_issued,
+            'price_per_share': self.price_per_share,
+            'pre_money_valuation': self.pre_money_valuation,
+            'post_money_valuation': self.post_money_valuation,
+            'liquidation_preference': self.liquidation_preference or 1.0,
+            'participating': self.participating,
+            'anti_dilution_provision': self.anti_dilution_provision or 'weighted_average',
+            'board_seats_granted': self.board_seats or 0,
+            'lead_investor': self.investor,
+        }
+
+        # Add optional fields if present
+        if self.end_date:
+            round_data['end_date'] = self.end_date
+        if hasattr(self, 'tags'):
+            round_data['tags'] = self.tags
+        if hasattr(self, 'notes'):
+            round_data['notes'] = self.notes
+
+        try:
+            return FundingRound(**round_data)
+        except Exception:
+            # If conversion fails, return None
+            return None
+
+    def _infer_round_type(self) -> str:
+        """Infer round type from investment characteristics."""
+        if self.round_name:
+            name_lower = self.round_name.lower()
+            # Check pre-seed first (before seed) to avoid false matches
+            if 'pre-seed' in name_lower or 'pre_seed' in name_lower:
+                return 'pre_seed'
+            elif 'seed' in name_lower:
+                return 'seed'
+            elif 'series a' in name_lower or 'series_a' in name_lower:
+                return 'series_a'
+            elif 'series b' in name_lower or 'series_b' in name_lower:
+                return 'series_b'
+            elif 'series c' in name_lower or 'series_c' in name_lower:
+                return 'series_c'
+            elif 'bridge' in name_lower:
+                return 'bridge'
+
+        # Infer from amount (rough heuristics)
+        if self.amount < 500000:
+            return 'pre_seed'
+        elif self.amount < 3000000:
+            return 'seed'
+        elif self.amount < 15000000:
+            return 'series_a'
+        elif self.amount < 50000000:
+            return 'series_b'
+        else:
+            return 'series_c'
+
+    def calculate_ownership_percentage(self, total_shares_pre_investment: int) -> Optional[float]:
+        """Calculate ownership percentage if shares_issued is available."""
+        if not self.shares_issued or total_shares_pre_investment <= 0:
+            return None
+
+        total_shares_post = total_shares_pre_investment + self.shares_issued
+        return (self.shares_issued / total_shares_post) * 100
+
+    def calculate_dilution_impact(self, existing_shareholders: Dict[str, int]) -> Dict[str, float]:
+        """Calculate dilution impact on existing shareholders."""
+        if not self.shares_issued:
+            return {}
+
+        total_existing_shares = sum(existing_shareholders.values())
+        total_post_investment = total_existing_shares + self.shares_issued
+
+        dilution_impact = {}
+        for shareholder, shares in existing_shareholders.items():
+            pre_ownership = (shares / total_existing_shares) * 100
+            post_ownership = (shares / total_post_investment) * 100
+            dilution = pre_ownership - post_ownership
+            dilution_impact[shareholder] = dilution
+
+        return dilution_impact
+
+    def get_cap_table_summary(self) -> Dict[str, Any]:
+        """Get summary of cap table relevant information."""
+        return {
+            'investor': self.investor,
+            'amount': self.amount,
+            'shares_issued': self.shares_issued,
+            'price_per_share': self.price_per_share,
+            'pre_money_valuation': self.pre_money_valuation,
+            'post_money_valuation': self.post_money_valuation,
+            'liquidation_preference': self.liquidation_preference,
+            'participating': self.participating,
+            'board_seats': self.board_seats,
+            'voting_rights_per_share': self.voting_rights_per_share,
+            'has_cap_table_data': bool(self.shares_issued or self.price_per_share or self.pre_money_valuation)
+        }
 
 
 class Sale(BaseEntity):
     """Product sale entity."""
-    
+
     type: str = "sale"
-    
+
     # Required fields
     amount: float
-    
+
     # Common optional fields
     customer: Optional[str] = None
     product: Optional[str] = None
     quantity: Optional[int] = None
     unit_price: Optional[float] = None
     delivery_date: Optional[date] = None
-    
+
     @field_validator('amount')
     @classmethod
     def validate_amount(cls, v: float) -> float:
@@ -256,20 +416,20 @@ class Sale(BaseEntity):
 
 class Service(BaseEntity):
     """Service contract entity."""
-    
+
     type: str = "service"
-    
+
     # Optional fields - can be calculated from other fields
     monthly_amount: Optional[float] = None
-    
+
     # Common optional fields
     customer: Optional[str] = None
     service_type: Optional[str] = None
     hours_per_month: Optional[float] = None
     hourly_rate: Optional[float] = None
-    
+
     contract_value: Optional[float] = None
-    
+
     @field_validator('monthly_amount')
     @classmethod
     def validate_monthly_amount(cls, v: float) -> float:
@@ -277,17 +437,17 @@ class Service(BaseEntity):
         if v is not None and v <= 0:
             raise ValueError('monthly_amount must be positive')
         return v
-    
+
     def calculate_monthly_revenue(self) -> float:
         """Calculate monthly revenue from service."""
         # If monthly_amount is set directly, use it
         if self.monthly_amount:
             return self.monthly_amount
-        
+
         # Calculate from hourly rate and hours
         if self.hourly_rate and self.hours_per_month:
             return self.hourly_rate * self.hours_per_month
-        
+
         # Calculate from contract value
         if self.contract_value:
             if self.end_date:
@@ -301,25 +461,25 @@ class Service(BaseEntity):
             else:
                 # Default to monthly if no end date
                 return self.contract_value / 12
-        
+
         return 0.0
 
 
 class Facility(BaseEntity):
     """Facility expense entity."""
-    
+
     type: str = "facility"
-    
+
     # Required fields
     monthly_cost: float
-    
+
     # Common optional fields
     location: Optional[str] = None
     size_sqft: Optional[int] = None
     utilities_monthly: Optional[float] = None
     insurance_annual: Optional[float] = None
     payment_frequency: str = 'monthly'
-    
+
     @field_validator('monthly_cost')
     @classmethod
     def validate_monthly_cost(cls, v: float) -> float:
@@ -327,7 +487,7 @@ class Facility(BaseEntity):
         if v <= 0:
             raise ValueError('monthly_cost must be positive')
         return v
-    
+
     @field_validator('payment_frequency')
     @classmethod
     def validate_payment_frequency(cls, v: str) -> str:
@@ -336,65 +496,65 @@ class Facility(BaseEntity):
         if v not in valid_frequencies:
             raise ValueError(f"Invalid payment frequency: {v}")
         return v
-    
+
     def calculate_monthly_cost(self, as_of_date: date) -> float:
         """Calculate total monthly facility cost."""
         if not self.is_active(as_of_date):
             return 0.0
-        
+
         # For annual payment frequency, only charge in January
         if self.payment_frequency == 'annual':
             if as_of_date.month == 1:
                 return self.monthly_cost
             else:
                 return 0.0
-        
+
         total = self.monthly_cost
-        
+
         # Add utilities
         if self.utilities_monthly:
             total += self.utilities_monthly
-        
+
         # Add monthly portion of annual costs
         if self.insurance_annual:
             total += self.insurance_annual / 12
-        
+
         # Add any other monthly costs
         for field in ['security_monthly', 'maintenance_monthly']:
             value = self.get_field(field, 0)
             if value:
                 total += value
-        
+
         return total
-    
+
     def calculate_total_monthly_cost(self) -> float:
         """Calculate total monthly cost including utilities."""
         total = self.monthly_cost
-        
+
         # Add utilities if it's a dictionary
         utilities = self.get_field('utilities', {})
         if isinstance(utilities, dict):
             total += sum(utilities.values())
-        
+
         return total
-    
+
     def calculate_cost_per_sqft(self) -> float:
         """Calculate cost per square foot."""
         square_footage = self.get_field('square_footage', 0)
         if square_footage <= 0:
             return 0.0
-        
+
         return self.monthly_cost / square_footage
 
 
 class Software(BaseEntity):
     """Software subscription entity."""
-    
+
     type: str = "software"
-    
+
     # Optional fields - can be calculated from other fields
     monthly_cost: Optional[float] = None
-    
+
     # Common optional fields
     vendor: Optional[str] = None
     license_count: Optional[int] = None
@@ -403,7 +563,7 @@ class Software(BaseEntity):
     useful_life_years: Optional[int] = None
     depreciation_method: str = 'straight-line'
     maintenance_percentage: Optional[float] = None
-    
+
     @field_validator('monthly_cost')
     @classmethod
     def validate_monthly_cost(cls, v: float) -> float:
@@ -411,7 +571,7 @@ class Software(BaseEntity):
         if v <= 0:
             raise ValueError('monthly_cost must be positive')
         return v
-    
+
     @field_validator('depreciation_method')
     @classmethod
     def validate_depreciation_method(cls, v: str) -> str:
@@ -420,7 +580,7 @@ class Software(BaseEntity):
         if v not in valid_methods:
             raise ValueError(f"Invalid depreciation method: {v}")
         return v
-    
+
     @field_validator('maintenance_percentage')
     @classmethod
     def validate_maintenance_percentage(cls, v: Optional[float]) -> Optional[float]:
@@ -428,40 +588,40 @@ class Software(BaseEntity):
         if v is not None and (v < 0 or v > 1.0):
             raise ValueError('maintenance_percentage must be between 0 and 1.0')
         return v
-    
+
     def calculate_monthly_cost(self, as_of_date: date) -> float:
         """Calculate monthly cost, converting annual if needed."""
         if not self.is_active(as_of_date):
             return 0.0
-        
+
         if self.annual_cost:
             return self.annual_cost / 12
         return self.monthly_cost
-    
+
     def calculate_monthly_depreciation(self, as_of_date: date) -> float:
         """Calculate monthly depreciation for software."""
         if not self.purchase_price or not self.useful_life_years:
             return 0.0
-        
+
         return self.purchase_price / (self.useful_life_years * 12)
-    
+
     def calculate_monthly_maintenance(self, as_of_date: date = None) -> float:
         """Calculate monthly maintenance cost for software."""
         if not self.purchase_price or not self.maintenance_percentage:
             return 0.0
-        
+
         return (self.purchase_price * self.maintenance_percentage) / 12
 
 
 class Equipment(BaseEntity):
     """Equipment purchase entity."""
-    
+
     type: str = "equipment"
-    
+
     # Optional fields with defaults
     cost: Optional[float] = None
     purchase_date: Optional[date] = None
-    
+
     # Common optional fields
     vendor: Optional[str] = None
     category: Optional[str] = None
@@ -471,7 +631,7 @@ class Equipment(BaseEntity):
     depreciation_method: str = 'straight-line'
     maintenance_percentage: Optional[float] = None
     maintenance_cost: Optional[float] = None
-    
+
     @field_validator('cost')
     @classmethod
     def validate_cost(cls, v: float) -> float:
@@ -479,7 +639,7 @@ class Equipment(BaseEntity):
         if v <= 0:
             raise ValueError('cost must be positive')
         return v
-    
+
     @field_validator('depreciation_method')
     @classmethod
     def validate_depreciation_method(cls, v: str) -> str:
@@ -488,7 +648,7 @@ class Equipment(BaseEntity):
         if v not in valid_methods:
             raise ValueError(f"Invalid depreciation method: {v}")
         return v
-    
+
     @field_validator('maintenance_percentage')
     @classmethod
     def validate_maintenance_percentage(cls, v: Optional[float]) -> Optional[float]:
@@ -496,52 +656,52 @@ class Equipment(BaseEntity):
         if v is not None and (v < 0 or v > 1.0):
             raise ValueError('maintenance_percentage must be between 0 and 1.0')
         return v
-    
+
     def calculate_monthly_depreciation(self, as_of_date: date = None) -> float:
         """Calculate monthly depreciation for equipment."""
         if not self.purchase_price or not self.useful_life_years:
             return 0.0
-        
+
         # If no as_of_date provided, assume current depreciation applies
         if as_of_date and self.purchase_date:
             # Check if we're still in depreciation period
             years_since_purchase = (as_of_date - self.purchase_date).days / 365.25
-            
+
             if years_since_purchase > self.useful_life_years:
                 return 0.0
-        
+
         # Calculate based on salvage value if provided
         salvage_value = self.get_field('salvage_value', 0)
         depreciable_amount = self.purchase_price - salvage_value
-        
+
         return depreciable_amount / (self.useful_life_years * 12)
-    
+
     def calculate_monthly_maintenance(self, as_of_date: date = None) -> float:
         """Calculate monthly maintenance cost for equipment."""
         if self.maintenance_cost:
             return self.maintenance_cost
-        
+
         if self.purchase_price and self.maintenance_percentage:
             maintenance_amount = (self.purchase_price * self.maintenance_percentage) / 12
             # Round to 2 decimal places to match test expectations
             return round(maintenance_amount, 2)
-        
+
         return 0.0
 
 
 class Project(BaseEntity):
     """R&D project entity with milestones."""
-    
+
     type: str = "project"
-    
+
     # Required fields
     total_budget: float
-    
+
     # Common optional fields
     milestones: Optional[List[Dict[str, Any]]] = None
     team_members: Optional[List[str]] = None
     status: str = "planned"
-    
+
     @field_validator('total_budget')
     @classmethod
     def validate_budget(cls, v: float) -> float:
@@ -549,7 +709,7 @@ class Project(BaseEntity):
         if v <= 0:
             raise ValueError('total_budget must be positive')
         return v
-    
+
     @field_validator('status')
     @classmethod
     def validate_status(cls, v: str) -> str:
@@ -558,55 +718,55 @@ class Project(BaseEntity):
         if v not in valid_statuses:
             raise ValueError(f"Invalid project status: {v}")
         return v
-    
+
     def get_active_milestone(self, as_of_date: date) -> Optional[Dict[str, Any]]:
         """Get the current active milestone."""
         if not self.milestones:
             return None
-        
+
         for milestone in self.milestones:
             if 'date' in milestone:
                 milestone_date = date.fromisoformat(milestone['date'])
                 if milestone_date <= as_of_date and milestone.get('status') != 'completed':
                     return milestone
-        
+
         return None
-    
+
     def calculate_monthly_burn_rate(self, as_of_date: date) -> float:
         """Calculate monthly burn rate for project."""
         if not self.is_active(as_of_date):
             return 0.0
-        
+
         # Simple burn rate calculation based on total budget and duration
         if self.end_date:
             months = (self.end_date.year - self.start_date.year) * 12 + \
                     (self.end_date.month - self.start_date.month)
             return self.total_budget / max(months, 1)
-        
+
         return 0.0
-    
+
     def calculate_budget_utilization(self) -> float:
         """Calculate budget utilization as percentage of spent vs total budget."""
         spent = self.get_field('spent_to_date', 0)
         if self.total_budget == 0:
             return 0.0
         return spent / self.total_budget
-    
+
     def calculate_health_score(self) -> float:
         """Calculate project health score based on budget and milestone completion."""
         budget_utilization = self.calculate_budget_utilization()
-        
+
         # Calculate milestone completion rate
         if self.milestones:
             completed_milestones = sum(1 for m in self.milestones if m.get('completed', False))
             milestone_completion = completed_milestones / len(self.milestones)
         else:
             milestone_completion = 1.0  # Assume healthy if no milestones
-        
+
         # Health score based on being on budget and on schedule
         # Simple formula: average of (1 - budget_overrun) and milestone_completion
         budget_health = max(0, 1 - max(0, budget_utilization - 1))
-        
+
         return (budget_health + milestone_completion) / 2
 
 
@@ -627,7 +787,7 @@ ENTITY_TYPES = {
 def create_entity(data: Dict[str, Any]) -> BaseEntity:
     """Create the appropriate entity type from a dictionary."""
     entity_type = data.get('type', '').lower()
-    
+
     if entity_type in ENTITY_TYPES:
         entity_class = ENTITY_TYPES[entity_type]
         return entity_class(**data)

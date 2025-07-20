@@ -1,0 +1,14 @@
+type: facility
+name: "Main Office"
+start_date: "2024-01-01"
+monthly_cost: 8000.0
+location: "123 Innovation Drive, Tech City, CA 94000"
+size_sqft: 5000
+facility_type: "office"
+utilities_monthly: 1200.0
+insurance_annual: 12000.0
+lease_start_date: "2024-01-01"
+lease_end_date: "2026-12-31"
+maintenance_monthly: 500.0
+tags: ["office", "headquarters", "lease"]
+notes: "Primary office location with conference rooms and lab space"

@@ -1,17 +1,18 @@
 """Shared test fixtures for async testing."""
 
 import asyncio
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
-import pytest
 from typing import Generator, List
+
+import pytest
 
 
 @pytest.fixture(scope="function")
 def event_loop_policy() -> Generator[asyncio.AbstractEventLoopPolicy, None, None]:
     """Create and provide a fresh event loop policy for each test function.
-    
+
     This fixture prevents event loop conflicts and ensures proper cleanup.
     """
     original_policy = asyncio.get_event_loop_policy()
@@ -23,7 +24,7 @@ def event_loop_policy() -> Generator[asyncio.AbstractEventLoopPolicy, None, None
         asyncio.set_event_loop_policy(original_policy)
 
 
-@pytest.fixture(scope="function") 
+@pytest.fixture(scope="function")
 async def clean_async_session():
     """Fixture to ensure proper cleanup of async resources."""
     # This can be used for additional async resource cleanup if needed

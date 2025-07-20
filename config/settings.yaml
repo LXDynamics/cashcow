@@ -40,6 +40,34 @@ cashcow:
     project:
       required_fields: [total_budget]
       calculators: [milestone_calc, burn_calc]
+      
+    # Cap table entity types
+    shareholder:
+      required_fields: [shareholder_type, total_shares, share_class]
+      calculators: [ownership_percentage, voting_power, dilution_impact]
+      directory: "captable/shareholders"
+      validation_rules:
+        - total_shares_positive
+        - valid_shareholder_type
+        - vesting_consistency
+      
+    share_class:
+      required_fields: [class_name, shares_authorized]
+      calculators: [utilization_calc, preference_coverage, conversion_value]
+      directory: "captable/share_classes"
+      validation_rules:
+        - shares_authorized_positive
+        - outstanding_within_authorized
+        - valid_liquidation_preference
+        
+    funding_round:
+      required_fields: [round_type, amount_raised]
+      calculators: [dilution_calc, valuation_impact, ownership_calc]
+      directory: "captable/funding_rounds"
+      validation_rules:
+        - amount_raised_positive
+        - valuation_consistency
+        - share_math_consistency
   
   # KPI configurations
   kpis:
@@ -61,6 +89,29 @@ cashcow:
     - name: cac
       description: "Customer acquisition cost"
       category: sales
+      
+    # Cap table KPIs
+    - name: founder_ownership
+      description: "Founder ownership percentage (fully diluted)"
+      category: ownership
+    - name: employee_ownership
+      description: "Employee ownership percentage (fully diluted)"
+      category: ownership
+    - name: liquidation_overhang
+      description: "Liquidation preference overhang multiple"
+      category: ownership
+    - name: option_pool_remaining
+      description: "Remaining option pool percentage"
+      category: ownership
+    - name: voting_control_concentration
+      description: "Voting control concentration (HHI index)"
+      category: governance
+    - name: board_independence
+      description: "Independent board member ratio"
+      category: governance
+    - name: anti_dilution_exposure
+      description: "Exposure to anti-dilution adjustments"
+      category: governance
   
   # Reporting configurations
   reporting:

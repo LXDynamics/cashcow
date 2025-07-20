@@ -1,0 +1,16 @@
+type: employee
+name: "Jane Doe"
+start_date: "2024-02-01"
+salary: 120000.0
+position: "Senior Software Engineer"
+department: "Engineering"
+overhead_multiplier: 1.3
+equity_eligible: true
+equity_shares: 1000
+equity_start_date: "2024-02-01"
+equity_cliff_months: 12
+equity_vest_years: 4
+bonus_performance_max: 0.15
+benefits_annual: 18000.0
+tags: ["engineering", "full-time", "senior"]
+notes: "Lead developer for core platform"

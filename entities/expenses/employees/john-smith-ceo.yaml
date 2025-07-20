@@ -1,0 +1,16 @@
+type: employee
+name: "John Smith"
+start_date: "2024-01-01"
+salary: 150000.0
+position: "Chief Executive Officer"
+department: "Executive"
+overhead_multiplier: 1.4
+equity_eligible: true
+equity_shares: 10000
+equity_start_date: "2024-01-01"
+equity_cliff_months: 12
+equity_vest_years: 4
+bonus_performance_max: 0.20
+benefits_annual: 24000.0
+tags: ["executive", "founder", "full-time"]
+notes: "Company founder and CEO"

@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  cashcow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cashcow_app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEVELOPMENT_MODE=false
+      - DATABASE_URL=sqlite:///app/data/cashcow.db
+      - CASHCOW_CONFIG_DIR=/app/config
+      - CASHCOW_ENTITIES_DIR=/app/entities
+      - CASHCOW_SCENARIOS_DIR=/app/scenarios
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:8000}
+    volumes:
+      - ./entities:/app/entities
+      - ./config:/app/config
+      - ./scenarios:/app/scenarios
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: cashcow_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./src/cashcow/web/frontend/build:/usr/share/nginx/html:ro
+    depends_on:
+      - cashcow
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: cashcow_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+volumes:
+  redis_data:

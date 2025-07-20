@@ -1,6 +1,13 @@
 """Models package for CashCow."""
 
 from .base import BaseEntity
+from .captable import (
+    CAPTABLE_ENTITY_TYPES,
+    FundingRound,
+    ShareClass,
+    Shareholder,
+    create_captable_entity,
+)
 from .entities import (
     ENTITY_TYPES,
     Employee,
@@ -28,4 +35,10 @@ __all__ = [
     'Project',
     'ENTITY_TYPES',
     'create_entity',
+    # Cap table entities
+    'ShareClass',
+    'Shareholder',
+    'FundingRound',
+    'CAPTABLE_ENTITY_TYPES',
+    'create_captable_entity',
 ]

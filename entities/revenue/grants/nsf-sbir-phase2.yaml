@@ -1,0 +1,27 @@
+type: grant
+name: "NSF SBIR Phase II"
+start_date: "2024-01-01"
+end_date: "2025-12-31"
+amount: 750000.0
+agency: "NSF"
+program: "SBIR"
+grant_number: "IIP-2345678"
+indirect_cost_rate: 0.25
+payment_schedule:
+  - date: "2024-01-01"
+    amount: 375000.0
+  - date: "2024-07-01"
+    amount: 375000.0
+milestones:
+  - name: "Technical Milestone 1"
+    date: "2024-06-30"
+    amount: 187500.0
+    status: "completed"
+  - name: "Technical Milestone 2"
+    date: "2024-12-31"
+    amount: 187500.0
+    status: "in_progress"
+reporting_requirements: "Quarterly technical and financial reports"
+reporting_frequency: "quarterly"
+tags: ["nsf", "sbir", "research", "development"]
+notes: "Phase II continuation of successful Phase I project"
