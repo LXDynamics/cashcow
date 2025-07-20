@@ -176,8 +176,8 @@ export const ENTITY_TYPES = [
 export type EntityType = typeof ENTITY_TYPES[number];
 
 // Entity categories for grouping
-export const ENTITY_CATEGORIES = {
+export const ENTITY_CATEGORIES: Record<string, EntityType[]> = {
   revenue: ['grant', 'investment', 'sale', 'service'],
   expenses: ['employee', 'facility', 'software', 'equipment'],
   projects: ['project']
-} as const;
+};

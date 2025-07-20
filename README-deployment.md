@@ -322,7 +322,7 @@ docker stats
 docker-compose exec postgres psql -U cashcow -d cashcow -c "SELECT * FROM pg_stat_activity;"
 
 # Review metrics
-curl http://localhost:8000/api/metrics
+curl http://localhost :8001/api/metrics
 ```
 
 ## Maintenance

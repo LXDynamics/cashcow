@@ -128,7 +128,8 @@ const MOCK_KPI_DATA: KPIData[] = [
     unit: '$',
     change: 0.125,
     change_period: 'month',
-    trend: 'up'
+    trend: 'up',
+    category: 'revenue'
   },
   {
     name: 'Total Cash Available',
@@ -136,7 +137,8 @@ const MOCK_KPI_DATA: KPIData[] = [
     unit: '$',
     change: -0.045,
     change_period: 'month',
-    trend: 'down'
+    trend: 'down',
+    category: 'cash_flow'
   },
   {
     name: 'Burn Rate',
@@ -144,7 +146,8 @@ const MOCK_KPI_DATA: KPIData[] = [
     unit: '$/month',
     change: -0.08,
     change_period: 'month',
-    trend: 'down'
+    trend: 'down',
+    category: 'expenses'
   },
   {
     name: 'Runway',
@@ -152,7 +155,8 @@ const MOCK_KPI_DATA: KPIData[] = [
     unit: 'months',
     change: 0.15,
     change_period: 'month',
-    trend: 'up'
+    trend: 'up',
+    category: 'cash_flow'
   },
   {
     name: 'Employee Count',
@@ -160,7 +164,8 @@ const MOCK_KPI_DATA: KPIData[] = [
     unit: 'people',
     change: 0.0,
     change_period: 'month',
-    trend: 'stable'
+    trend: 'stable',
+    category: 'expenses'
   },
   {
     name: 'Revenue Growth Rate',
@@ -168,7 +173,8 @@ const MOCK_KPI_DATA: KPIData[] = [
     unit: '%',
     change: 0.032,
     change_period: 'month',
-    trend: 'up'
+    trend: 'up',
+    category: 'revenue'
   },
   {
     name: 'Gross Margin',
@@ -176,7 +182,8 @@ const MOCK_KPI_DATA: KPIData[] = [
     unit: '%',
     change: 0.023,
     change_period: 'month',
-    trend: 'up'
+    trend: 'up',
+    category: 'revenue'
   },
   {
     name: 'Customer Acquisition Cost',
@@ -184,7 +191,8 @@ const MOCK_KPI_DATA: KPIData[] = [
     unit: '$',
     change: -0.12,
     change_period: 'month',
-    trend: 'down'
+    trend: 'down',
+    category: 'expenses'
   }
 ];
 
@@ -208,6 +216,11 @@ class CalculationService {
     }
     
     return api.get<ForecastResponse>(url);
+  }
+
+  // Get forecast data (alias for generateForecast)
+  async getForecast(params: ForecastParams = {}): Promise<ApiResponse<ForecastResponse>> {
+    return this.generateForecast(params);
   }
 
   // Get KPI data

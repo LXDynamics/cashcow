@@ -27,6 +27,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libffi-dev \
     python3-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -57,7 +58,7 @@ COPY --from=frontend-builder /app/frontend/build ./src/cashcow/web/frontend/buil
 RUN mkdir -p /app/logs /app/reports /app/data
 
 # Set environment variables
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app/src
 ENV CASHCOW_CONFIG_DIR=/app/config
 ENV CASHCOW_ENTITIES_DIR=/app/entities
 ENV CASHCOW_SCENARIOS_DIR=/app/scenarios

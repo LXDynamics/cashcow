@@ -78,6 +78,7 @@ export interface KPIData {
   change?: number;
   change_period?: string;
   trend?: 'up' | 'down' | 'stable';
+  category?: 'revenue' | 'expenses' | 'cash_flow' | 'other';
 }
 
 export interface KPIResponse extends ApiResponse<KPIData[]> {}
@@ -131,7 +132,9 @@ export interface ScenarioCreateRequest {
 
 // WebSocket message types
 export interface WebSocketMessage {
-  type: 'entity_update' | 'calculation_complete' | 'validation_error' | 'system_status';
+  type: 'entity_update' | 'calculation_complete' | 'validation_error' | 'system_status' | 
+        'kpi_update' | 'entity_created' | 'entity_updated' | 'entity_deleted' | 
+        'calculation_progress' | 'forecast_update';
   data: any;
   timestamp: string;
 }

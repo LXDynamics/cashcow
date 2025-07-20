@@ -128,7 +128,7 @@ load-test:
 
 # Health checks
 health:
-	@curl -f http://localhost:8000/api/health || echo "API not available"
+	@curl -f http://localhost :8001/api/health || echo "API not available"
 	@curl -f http://localhost:80/health || echo "Nginx not available"
 
 # Production utilities

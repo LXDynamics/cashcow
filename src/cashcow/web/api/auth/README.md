@@ -59,14 +59,14 @@ Response:
 Include the JWT token in the Authorization header:
 
 ```bash
-curl -X GET "http://localhost:8000/api/users/me" \
+curl -X GET "http://localhost :8001/api/users/me" \
      -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 Or use an API key:
 
 ```bash
-curl -X GET "http://localhost:8000/api/entities" \
+curl -X GET "http://localhost :8001/api/entities" \
      -H "X-API-Key: YOUR_API_KEY"
 ```
 

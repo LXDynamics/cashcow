@@ -213,6 +213,9 @@ class WebSocketService {
 // Create singleton instance
 export const websocketService = new WebSocketService();
 
+// Export the class as well for direct instantiation if needed
+export { WebSocketService };
+
 // Hook for React components
 export function useWebSocket(handlers: WebSocketEventHandlers) {
   return {

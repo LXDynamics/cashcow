@@ -94,8 +94,8 @@ if [ "$ENVIRONMENT" = "production" ]; then
     echo -e "Metrics: https://your-domain.com:9090 (Prometheus)"
 else
     echo -e "Application: http://localhost"
-    echo -e "API: http://localhost:8000"
-    echo -e "API Docs: http://localhost:8000/docs"
+    echo -e "API: http://localhost :8001"
+    echo -e "API Docs: http://localhost :8001/docs"
     echo -e "Grafana: http://localhost:3001"
     echo -e "Prometheus: http://localhost:9090"
 fi

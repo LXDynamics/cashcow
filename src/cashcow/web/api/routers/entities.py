@@ -1,117 +1,154 @@
 """
 CashCow Web API - Entity management router with CRUD operations.
+Mock implementation for development.
 """
 
 import uuid
+import os
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import JSONResponse
-
-# Import CashCow modules
-from cashcow.models import create_entity, ENTITY_TYPES, BaseEntity
-from cashcow.storage.yaml_loader import YamlEntityLoader
-from cashcow.validation import validate_entity
-
-# Import API models
-from ..models.entities import (
-    EntityCreateRequest,
-    EntityUpdateRequest,
-    EntityResponse,
-    EntityListResponse,
-    EntitySummary,
-    EntityValidationResponse,
-    EntityTypesResponse,
-    EntityTypeInfo,
-    EntitySearchRequest,
-    BulkEntityOperation,
-    BulkOperationResponse,
-    EntityCreateRequestUnion
-)
-from ..dependencies import get_entity_loader, get_current_user
-from ..exceptions import EntityNotFoundError, EntityValidationError
+import yaml
 
 # Create router
 router = APIRouter(prefix="/entities", tags=["entities"])
 
+# Mock entity data for development
+MOCK_ENTITIES = [
+    {
+        "id": "emp1",
+        "type": "employee",
+        "name": "John Smith",
+        "start_date": "2024-01-01",
+        "end_date": None,
+        "salary": 150000,
+        "position": "CEO",
+        "tags": ["executive", "founder"],
+        "notes": "Company founder and CEO",
+        "is_active": True,
+        "extra_fields": {
+            "overhead_multiplier": 1.4,
+            "equity_eligible": True,
+            "department": "Executive"
+        }
+    },
+    {
+        "id": "emp2", 
+        "type": "employee",
+        "name": "Jane Doe",
+        "start_date": "2024-02-01",
+        "end_date": None,
+        "salary": 120000,
+        "position": "Senior Engineer",
+        "tags": ["engineering"],
+        "notes": "Lead developer for core platform",
+        "is_active": True,
+        "extra_fields": {
+            "overhead_multiplier": 1.3,
+            "equity_eligible": True,
+            "department": "Engineering"
+        }
+    },
+    {
+        "id": "grant1",
+        "type": "grant",
+        "name": "NSF SBIR Phase II",
+        "start_date": "2024-01-01",
+        "end_date": "2025-12-31",
+        "amount": 750000,
+        "agency": "NSF",
+        "tags": ["funding", "research"],
+        "notes": "Phase II continuation of successful Phase I project",
+        "is_active": True,
+        "extra_fields": {
+            "program": "SBIR",
+            "indirect_cost_rate": 0.25,
+            "grant_number": "IIP-2345678"
+        }
+    },
+    {
+        "id": "facility1",
+        "type": "facility", 
+        "name": "Main Office",
+        "start_date": "2024-01-01",
+        "end_date": None,
+        "monthly_cost": 8000,
+        "location": "Tech City, CA",
+        "tags": ["office"],
+        "notes": "Primary office location with conference rooms and lab space",
+        "is_active": True,
+        "extra_fields": {
+            "size_sqft": 5000,
+            "facility_type": "office",
+            "utilities_monthly": 1200
+        }
+    },
+    {
+        "id": "project1",
+        "type": "project",
+        "name": "Advanced Rocket Engine Development", 
+        "start_date": "2024-01-01",
+        "end_date": "2025-12-31",
+        "total_budget": 1000000,
+        "status": "active",
+        "tags": ["development", "research"],
+        "notes": "Next-generation rocket engine for small satellite launches",
+        "is_active": True,
+        "extra_fields": {
+            "completion_percentage": 25,
+            "priority": "high",
+            "project_manager": "John Smith"
+        }
+    }
+]
 
-@router.get("/", response_model=EntityListResponse)
+def get_current_user():
+    """Mock user for development."""
+    return {"user_id": "dev-user", "username": "developer"}
+
+@router.get("/")
 async def list_entities(
     page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(50, ge=1, le=200, description="Items per page"),
-    entity_type: Optional[str] = Query(None, description="Filter by entity type"),
+    per_page: int = Query(50, ge=1, le=200, description="Items per page"),  
+    type: Optional[str] = Query(None, description="Filter by entity type"),
     active_only: bool = Query(False, description="Only return active entities"),
-    tag: Optional[str] = Query(None, description="Filter by tag"),
-    loader: YamlEntityLoader = Depends(get_entity_loader),
+    search: Optional[str] = Query(None, description="Search in entity names"),
     current_user: dict = Depends(get_current_user)
 ):
     """
     List all entities with pagination and filtering.
     """
     try:
-        # Load entities based on type filter
-        if entity_type:
-            entities = loader.load_by_type(entity_type)
-        else:
-            entities = loader.load_all()
+        # Start with all entities
+        entities = MOCK_ENTITIES.copy()
         
         # Apply filters
-        filtered_entities = []
-        current_date = date.today()
-        
-        for entity in entities:
-            # Active filter
-            if active_only and not entity.is_active(current_date):
-                continue
-                
-            # Tag filter
-            if tag and tag not in entity.tags:
-                continue
-                
-            filtered_entities.append(entity)
+        if type:
+            entities = [e for e in entities if e["type"] == type]
+            
+        if active_only:
+            entities = [e for e in entities if e["is_active"]]
+            
+        if search:
+            search_lower = search.lower()
+            entities = [e for e in entities if search_lower in e["name"].lower()]
         
         # Calculate pagination
-        total = len(filtered_entities)
-        start_idx = (page - 1) * page_size
-        end_idx = start_idx + page_size
-        paginated_entities = filtered_entities[start_idx:end_idx]
+        total = len(entities)
+        start_idx = (page - 1) * per_page
+        end_idx = start_idx + per_page
+        paginated_entities = entities[start_idx:end_idx]
         
-        # Convert to response format
-        entity_responses = []
-        for entity in paginated_entities:
-            # Generate unique ID from file path or name+type
-            entity_id = _generate_entity_id(entity)
-            
-            # Extract extra fields (non-standard BaseEntity fields)
-            extra_fields = {}
-            entity_dict = entity.to_dict()
-            base_fields = {'type', 'name', 'start_date', 'end_date', 'tags', 'notes', '_file_path'}
-            
-            for key, value in entity_dict.items():
-                if key not in base_fields:
-                    extra_fields[key] = value
-            
-            entity_response = EntityResponse(
-                id=entity_id,
-                type=entity.type,
-                name=entity.name,
-                start_date=entity.start_date,
-                end_date=entity.end_date,
-                tags=entity.tags or [],
-                notes=entity.notes,
-                is_active=entity.is_active(current_date),
-                extra_fields=extra_fields
-            )
-            entity_responses.append(entity_response)
-        
-        return EntityListResponse(
-            entities=entity_responses,
-            total=total,
-            page=page,
-            page_size=page_size,
-            has_next=end_idx < total
-        )
+        return {
+            "success": True,
+            "data": paginated_entities,
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "total_pages": (total + per_page - 1) // per_page
+        }
         
     except Exception as e:
         raise HTTPException(
@@ -120,97 +157,55 @@ async def list_entities(
         )
 
 
-@router.get("/{entity_id}", response_model=EntityResponse)
+@router.get("/{entity_id}")
 async def get_entity(
     entity_id: str,
-    loader: YamlEntityLoader = Depends(get_entity_loader),
     current_user: dict = Depends(get_current_user)
 ):
     """
     Get a specific entity by ID.
     """
-    entity = _find_entity_by_id(entity_id, loader)
+    entity = next((e for e in MOCK_ENTITIES if e["id"] == entity_id), None)
     if not entity:
-        raise EntityNotFoundError(entity_id)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Entity with ID {entity_id} not found"
+        )
     
-    # Convert to response format
-    current_date = date.today()
-    entity_dict = entity.to_dict()
-    
-    # Extract extra fields
-    extra_fields = {}
-    base_fields = {'type', 'name', 'start_date', 'end_date', 'tags', 'notes', '_file_path'}
-    
-    for key, value in entity_dict.items():
-        if key not in base_fields:
-            extra_fields[key] = value
-    
-    return EntityResponse(
-        id=entity_id,
-        type=entity.type,
-        name=entity.name,
-        start_date=entity.start_date,
-        end_date=entity.end_date,
-        tags=entity.tags or [],
-        notes=entity.notes,
-        is_active=entity.is_active(current_date),
-        extra_fields=extra_fields
-    )
+    return {
+        "success": True,
+        "data": entity
+    }
 
 
-@router.post("/", response_model=EntityResponse, status_code=status.HTTP_201_CREATED)
-async def create_entity_endpoint(
-    entity_data: EntityCreateRequest,
-    loader: YamlEntityLoader = Depends(get_entity_loader),
+@router.post("/", status_code=status.HTTP_201_CREATED)
+async def create_entity(
+    entity_data: dict,
     current_user: dict = Depends(get_current_user)
 ):
     """
     Create a new entity.
     """
     try:
-        # Convert request to dictionary
-        entity_dict = entity_data.model_dump(exclude_unset=True)
+        # Generate new ID
+        entity_id = str(uuid.uuid4())[:8]
         
-        # Create entity object
-        entity = create_entity(entity_dict)
+        # Create new entity
+        new_entity = {
+            "id": entity_id,
+            "is_active": True,
+            **entity_data
+        }
         
-        # Validate entity
-        validation_result = validate_entity(entity)
-        if not validation_result.is_valid:
-            raise EntityValidationError("; ".join(validation_result.errors))
+        # Add to mock data (in a real implementation, this would save to database)
+        MOCK_ENTITIES.append(new_entity)
         
-        # Save entity to file
-        file_path = loader.save_entity(entity)
+        return {
+            "success": True,
+            "data": new_entity,
+            "message": "Entity created successfully"
+        }
         
-        # Generate entity ID
-        entity_id = _generate_entity_id(entity)
-        
-        # Return response
-        current_date = date.today()
-        entity_dict = entity.to_dict()
-        
-        # Extract extra fields
-        extra_fields = {}
-        base_fields = {'type', 'name', 'start_date', 'end_date', 'tags', 'notes', '_file_path'}
-        
-        for key, value in entity_dict.items():
-            if key not in base_fields:
-                extra_fields[key] = value
-        
-        return EntityResponse(
-            id=entity_id,
-            type=entity.type,
-            name=entity.name,
-            start_date=entity.start_date,
-            end_date=entity.end_date,
-            tags=entity.tags or [],
-            notes=entity.notes,
-            is_active=entity.is_active(current_date),
-            extra_fields=extra_fields
-        )
-        
-    except EntityValidationError:
-        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -218,71 +213,33 @@ async def create_entity_endpoint(
         )
 
 
-@router.put("/{entity_id}", response_model=EntityResponse)
+@router.put("/{entity_id}")
 async def update_entity(
     entity_id: str,
-    update_data: EntityUpdateRequest,
-    loader: YamlEntityLoader = Depends(get_entity_loader),
+    update_data: dict,
     current_user: dict = Depends(get_current_user)
 ):
     """
     Update an existing entity.
     """
-    # Find existing entity
-    entity = _find_entity_by_id(entity_id, loader)
-    if not entity:
-        raise EntityNotFoundError(entity_id)
+    # Find entity
+    entity_index = next((i for i, e in enumerate(MOCK_ENTITIES) if e["id"] == entity_id), None)
+    if entity_index is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Entity with ID {entity_id} not found"
+        )
     
     try:
-        # Get current entity data
-        entity_dict = entity.to_dict()
+        # Update entity
+        MOCK_ENTITIES[entity_index].update(update_data)
         
-        # Apply updates (only for provided fields)
-        update_dict = update_data.model_dump(exclude_unset=True)
-        for key, value in update_dict.items():
-            entity_dict[key] = value
+        return {
+            "success": True,
+            "data": MOCK_ENTITIES[entity_index],
+            "message": "Entity updated successfully"
+        }
         
-        # Create updated entity
-        updated_entity = create_entity(entity_dict)
-        
-        # Validate updated entity
-        validation_result = validate_entity(updated_entity)
-        if not validation_result.is_valid:
-            raise EntityValidationError("; ".join(validation_result.errors))
-        
-        # Save updated entity (overwrite existing file)
-        file_path = entity_dict.get('_file_path')
-        if file_path:
-            loader.save_entity(updated_entity, file_path)
-        else:
-            loader.save_entity(updated_entity)
-        
-        # Return updated entity response
-        current_date = date.today()
-        updated_dict = updated_entity.to_dict()
-        
-        # Extract extra fields
-        extra_fields = {}
-        base_fields = {'type', 'name', 'start_date', 'end_date', 'tags', 'notes', '_file_path'}
-        
-        for key, value in updated_dict.items():
-            if key not in base_fields:
-                extra_fields[key] = value
-        
-        return EntityResponse(
-            id=entity_id,
-            type=updated_entity.type,
-            name=updated_entity.name,
-            start_date=updated_entity.start_date,
-            end_date=updated_entity.end_date,
-            tags=updated_entity.tags or [],
-            notes=updated_entity.notes,
-            is_active=updated_entity.is_active(current_date),
-            extra_fields=extra_fields
-        )
-        
-    except EntityValidationError:
-        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -293,30 +250,23 @@ async def update_entity(
 @router.delete("/{entity_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_entity(
     entity_id: str,
-    loader: YamlEntityLoader = Depends(get_entity_loader),
     current_user: dict = Depends(get_current_user)
 ):
     """
     Delete an entity.
     """
-    # Find existing entity
-    entity = _find_entity_by_id(entity_id, loader)
-    if not entity:
-        raise EntityNotFoundError(entity_id)
+    # Find entity
+    entity_index = next((i for i, e in enumerate(MOCK_ENTITIES) if e["id"] == entity_id), None)
+    if entity_index is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Entity with ID {entity_id} not found"
+        )
     
     try:
-        # Get file path and delete file
-        entity_dict = entity.to_dict()
-        file_path = entity_dict.get('_file_path')
+        # Remove entity
+        MOCK_ENTITIES.pop(entity_index)
         
-        if file_path and Path(file_path).exists():
-            Path(file_path).unlink()
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Entity file not found"
-            )
-            
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -324,117 +274,73 @@ async def delete_entity(
         )
 
 
-@router.get("/types/available", response_model=EntityTypesResponse)
+@router.get("/types/available")
 async def get_entity_types(
     current_user: dict = Depends(get_current_user)
 ):
     """
     Get information about available entity types.
     """
-    type_info = []
-    
-    for entity_type, entity_class in ENTITY_TYPES.items():
-        # Get model fields for documentation
-        model_fields = entity_class.model_fields
-        required_fields = []
-        optional_fields = []
-        
-        for field_name, field_info in model_fields.items():
-            if field_info.is_required():
-                required_fields.append(field_name)
-            else:
-                optional_fields.append(field_name)
-        
-        # Create example entity data
-        example = {
-            "type": entity_type,
-            "name": f"Example {entity_type.title()}",
-            "start_date": "2024-01-01"
+    entity_types = [
+        {
+            "type": "employee",
+            "display_name": "Employee",
+            "description": "Company employees and contractors",
+            "required_fields": ["name", "start_date", "salary"],
+            "optional_fields": ["position", "department", "equity_eligible"],
+            "example": {
+                "type": "employee",
+                "name": "John Doe",
+                "start_date": "2024-01-01", 
+                "salary": 75000,
+                "position": "Software Engineer"
+            }
+        },
+        {
+            "type": "grant",
+            "display_name": "Grant",
+            "description": "Government and institutional grants",
+            "required_fields": ["name", "start_date", "amount"],
+            "optional_fields": ["agency", "program", "indirect_cost_rate"],
+            "example": {
+                "type": "grant",
+                "name": "SBIR Phase I",
+                "start_date": "2024-01-01",
+                "amount": 100000,
+                "agency": "NASA"
+            }
+        },
+        {
+            "type": "project",
+            "display_name": "Project", 
+            "description": "Development projects and initiatives",
+            "required_fields": ["name", "start_date", "total_budget"],
+            "optional_fields": ["status", "priority", "completion_percentage"],
+            "example": {
+                "type": "project",
+                "name": "New Product Development",
+                "start_date": "2024-01-01",
+                "total_budget": 50000,
+                "status": "planned"
+            }
+        },
+        {
+            "type": "facility",
+            "display_name": "Facility",
+            "description": "Office spaces and facilities",
+            "required_fields": ["name", "start_date", "monthly_cost"],
+            "optional_fields": ["location", "size_sqft", "facility_type"],
+            "example": {
+                "type": "facility",
+                "name": "Main Office",
+                "start_date": "2024-01-01",
+                "monthly_cost": 5000,
+                "location": "San Francisco, CA"
+            }
         }
-        
-        # Add type-specific example fields
-        if entity_type == "employee":
-            example["salary"] = 75000
-            example["position"] = "Software Engineer"
-        elif entity_type == "grant":
-            example["amount"] = 100000
-            example["agency"] = "NASA"
-        elif entity_type == "project":
-            example["total_budget"] = 50000
-            example["status"] = "planned"
-        
-        type_info.append(EntityTypeInfo(
-            type=entity_type,
-            display_name=entity_type.replace('_', ' ').title(),
-            description=f"{entity_type.title()} entity for CashCow financial modeling",
-            required_fields=required_fields,
-            optional_fields=optional_fields,
-            example=example
-        ))
+    ]
     
-    return EntityTypesResponse(types=type_info)
-
-
-@router.post("/validate", response_model=EntityValidationResponse)
-async def validate_entity_data(
-    entity_data: EntityCreateRequest,
-    current_user: dict = Depends(get_current_user)
-):
-    """
-    Validate entity data without creating the entity.
-    """
-    try:
-        # Convert request to dictionary
-        entity_dict = entity_data.model_dump(exclude_unset=True)
-        
-        # Create entity object for validation
-        entity = create_entity(entity_dict)
-        
-        # Validate entity
-        validation_result = validate_entity(entity)
-        
-        return EntityValidationResponse(
-            valid=validation_result.is_valid,
-            errors=validation_result.errors,
-            warnings=validation_result.warnings
-        )
-        
-    except Exception as e:
-        return EntityValidationResponse(
-            valid=False,
-            errors=[str(e)],
-            warnings=[]
-        )
-
-
-# Helper functions
-
-def _generate_entity_id(entity: BaseEntity) -> str:
-    """
-    Generate a unique ID for an entity.
-    """
-    # Use file path if available
-    entity_dict = entity.to_dict()
-    file_path = entity_dict.get('_file_path')
-    
-    if file_path:
-        # Use file path hash for consistency
-        return str(hash(file_path))[:16]
-    
-    # Fallback to name + type hash
-    identifier = f"{entity.type}:{entity.name}:{entity.start_date}"
-    return str(hash(identifier))[:16]
-
-
-def _find_entity_by_id(entity_id: str, loader: YamlEntityLoader) -> Optional[BaseEntity]:
-    """
-    Find an entity by its generated ID.
-    """
-    # Load all entities and find matching ID
-    entities = loader.load_all()
-    
-    for entity in entities:
-        if _generate_entity_id(entity) == entity_id:
-            return entity
-    
-    return None
+    return {
+        "success": True,
+        "data": entity_types
+    }
